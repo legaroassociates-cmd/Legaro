@@ -13,15 +13,15 @@ const Navbar = () => {
 
     const navLinks = [
         { name: 'Home', path: '/' },
-        { name: 'About Us', path: '/about-us' },
+        { name: 'About Us', path: '/about' },
         {
             name: 'Lawyer Services',
-            path: '/lawyer-services',
+            path: '/services',
             hasDropdown: true
         },
         {
             name: 'Documentation Services',
-            path: '/documentation-services',
+            path: '/documentation',
             hasDropdown: true
         },
         {
@@ -29,7 +29,7 @@ const Navbar = () => {
             path: '/trademark-ip',
             hasDropdown: true
         },
-        { name: 'Contact Us', path: '/contact-us' },
+        { name: 'Contact Us', path: '/contact' },
     ];
 
     // Data for Documentation Services Mega Menu
