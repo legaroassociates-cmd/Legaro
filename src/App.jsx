@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
 import AboutUs from './pages/AboutUs';
 import LawyerServices from './pages/LawyerServices';
@@ -38,6 +38,7 @@ function App() {
                     <Route path="/doc/:id" element={<ServicePage />} />
                     <Route path="/ip/:id" element={<ServicePage />} />
                     <Route path="/seed" element={<SeedDatabase />} />
+                    <Route path="/trademark-ip" element={<Navigate to="/ip/trademark-registration" replace />} />
                 </Route>
 
                 {/* Admin Routes (Standalone) */}

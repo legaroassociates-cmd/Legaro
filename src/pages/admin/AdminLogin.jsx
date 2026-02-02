@@ -41,7 +41,9 @@ const AdminLogin = () => {
 
             if (adminData.password === hashedPassword) {
                 // Success!
-                localStorage.setItem('legaro_admin_session', 'true');
+                sessionStorage.setItem('legaro_admin_session', 'true');
+                // Cleanup old local storage if exists
+                localStorage.removeItem('legaro_admin_session');
                 navigate('/admin/dashboard');
             } else {
                 throw new Error("Invalid Password");

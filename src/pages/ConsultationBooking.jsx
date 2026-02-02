@@ -216,8 +216,10 @@ const ConsultationBooking = () => {
     const handlePrev = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
 
     const handlePayment = async () => {
+        console.log("Starting payment process...");
         setIsSubmitting(true);
         try {
+            console.log("Saving booking to Firestore...", formData);
             await addDoc(collection(db, "bookings"), {
                 ...formData,
                 createdAt: serverTimestamp(),
@@ -225,11 +227,12 @@ const ConsultationBooking = () => {
                 amount: 299,
                 paymentId: 'DUMMY_PAY_' + Date.now()
             });
+            console.log("Booking saved successfully!");
             alert("Booking confirmed! We have received your request. Our team will connect with you shortly.");
             navigate('/');
         } catch (error) {
-            console.error("Error booking consultation: ", error);
-            alert("Something went wrong. Please try again.");
+            console.error("Error booking consultation: ", error); // Check console for this!
+            alert(`Error: ${error.message}. Please try again or contact support.`);
         } finally {
             setIsSubmitting(false);
         }
@@ -592,6 +595,7 @@ const ConsultationBooking = () => {
                                 </button>
                             ) : (
                                 <button
+                                    type="button"
                                     onClick={handlePayment}
                                     disabled={isSubmitting}
                                     className="bg-gradient-to-r from-gold to-gold-dark text-white px-8 py-3 rounded-lg font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2 transform hover:-translate-y-1 ml-auto disabled:opacity-70 disabled:cursor-not-allowed"

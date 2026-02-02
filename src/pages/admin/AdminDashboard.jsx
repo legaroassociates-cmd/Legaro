@@ -66,7 +66,7 @@ const AdminDashboard = () => {
 
     const handleLogout = () => {
         if (window.confirm("Are you sure you want to logout?")) {
-            localStorage.removeItem('legaro_admin_session');
+            sessionStorage.removeItem('legaro_admin_session');
             navigate('/admin/login');
         }
     };
@@ -491,7 +491,8 @@ const AdminDashboard = () => {
             <style>{`
                 .sidebar-link { @apply w-full flex items-center h-12 px-3 rounded-lg transition-colors text-gray-400 hover:text-white hover:bg-white/5 cursor-pointer whitespace-nowrap; }
                 .sidebar-link.active { @apply bg-white/10 text-white; }
-                .sidebar-text { @apply ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-medium; }
+                .sidebar-text { @apply ml-4 opacity-0 -translate-x-4 pointer-events-none transition-all duration-300 ease-in-out font-medium absolute left-12; }
+                .group:hover .sidebar-text { @apply opacity-100 translate-x-0 pointer-events-auto relative left-0; }
                 .input-field { @apply w-full px-3 py-2 rounded border border-gray-300 focus:border-gold focus:ring-1 focus:ring-gold outline-none transition-all text-sm; }
                 .status-badge { @apply px-2 py-1 rounded text-xs font-bold uppercase; }
                 .status-completed, .status-verified, .status-onboarding { @apply bg-green-100 text-green-700; }
