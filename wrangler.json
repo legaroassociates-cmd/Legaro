@@ -2,8 +2,7 @@
     "name": "legaro",
     "compatibility_date": "2024-02-02",
     "assets": {
-        "directory": "./dist",
-        "binding": "ASSETS"
+        "directory": "./dist"
     },
     "observability": {
         "enabled": true
