@@ -1,12 +1,12 @@
 
-import abdulHakim from '../assets/lawyers/abdul_hakim.png';
-import adhilBasha from '../assets/lawyers/adhil_basha.png';
-import sasiKumar from '../assets/lawyers/sasi_kumar.png';
-import varadharajan from '../assets/lawyers/varadharajan.png';
-import ramanujam from '../assets/lawyers/Ramanujam.png';
-import gandhi from '../assets/lawyers/Gandhi.png';
-import arbaaz from '../assets/lawyers/Arbaaz.png';
-import janani from '../assets/lawyers/Janani.png';
+import abdulHakim from '../assets/lawyers/abdul_hakim.jpeg';
+import adhilBasha from '../assets/lawyers/adhil_basha.jpeg';
+import sasiKumar from '../assets/lawyers/sasi_kumar.jpeg';
+import varadharajan from '../assets/lawyers/varadharajan.jpeg';
+import ramanujam from '../assets/lawyers/Ramanujam.jpeg';
+import gandhi from '../assets/lawyers/Gandhi.jpeg';
+import arbaaz from '../assets/lawyers/Arbaaz.jpeg';
+import janani from '../assets/lawyers/Janani.jpeg';
 
 export const lawyersData = [
     {

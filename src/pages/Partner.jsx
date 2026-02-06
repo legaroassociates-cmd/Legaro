@@ -56,44 +56,36 @@ const Partner = () => {
                 <div className="absolute top-0 right-0 w-64 h-64 bg-gold opacity-10 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2"></div>
 
                 <div className="relative z-10">
-                    <h4 className="text-gold font-bold tracking-widest uppercase mb-4 text-sm">Join Legaro.in</h4>
+                    <h4 className="text-gold font-bold tracking-widest uppercase mb-4 text-sm">Contact Information</h4>
                     <h1 className="text-4xl lg:text-5xl font-serif mb-6 leading-tight">
-                        Elevate Your <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold to-[#F3E5AB]">Legal Practice</span>
+                        Our Office <br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold to-[#F3E5AB]">Address</span>
                     </h1>
 
-                    <p className="text-gray-300 text-lg mb-8 leading-relaxed">
-                        Join Tamil Nadu's fastest-growing digital legal platform. We connect you with verified clients while you focus on what matters most—practicing law.
-                    </p>
-
-                    <div className="space-y-6">
-                        <div className="flex items-start gap-4">
-                            <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-gold shrink-0">
-                                <Users size={20} />
+                    <div className="space-y-8 mt-8">
+                        {/* Address */}
+                        <div className="flex items-start gap-5">
+                            <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-gold shrink-0 mt-1">
+                                <Users size={24} />
                             </div>
                             <div>
-                                <h3 className="font-bold text-lg">Verified Clients</h3>
-                                <p className="text-sm text-gray-400">Pre-screened clients matching your specialization.</p>
+                                <h3 className="font-serif text-2xl text-white mb-2">Legaro Associates</h3>
+                                <p className="text-gray-300 text-lg leading-relaxed">
+                                    109 Padikuppam Road, <br />
+                                    Anna Nagar West <br />
+                                    Chennai, Tamil Nadu - 600040
+                                </p>
                             </div>
                         </div>
 
-                        <div className="flex items-start gap-4">
-                            <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-gold shrink-0">
-                                <ShieldCheck size={20} />
+                        {/* Email */}
+                        <div className="flex items-start gap-5">
+                            <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-gold shrink-0 mt-1">
+                                <ShieldCheck size={24} />
                             </div>
                             <div>
-                                <h3 className="font-bold text-lg">Guaranteed Payments</h3>
-                                <p className="text-sm text-gray-400">Secure escrow payments for consultations.</p>
-                            </div>
-                        </div>
-
-                        <div className="flex items-start gap-4">
-                            <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-gold shrink-0">
-                                <TrendingUp size={20} />
-                            </div>
-                            <div>
-                                <h3 className="font-bold text-lg">Practice Growth</h3>
-                                <p className="text-sm text-gray-400">Digital presence and reputation management.</p>
+                                <h3 className="font-bold text-xl text-white mb-1">Email Address</h3>
+                                <p className="text-gold text-lg font-medium">support.legaro@gmail.com</p>
                             </div>
                         </div>
                     </div>
@@ -129,7 +121,7 @@ const Partner = () => {
                                 <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Mobile Number</label>
                                 <input
                                     name="mobile" value={formData.mobile} onChange={handleChange} required
-                                    type="tel" className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-gold focus:ring-0 outline-none transition-all" placeholder="+91 98765 43210"
+                                    type="tel" className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-gold focus:ring-0 outline-none transition-all" placeholder="xxxxxxxxxx"
                                 />
                             </div>
                             <div>

@@ -8,6 +8,7 @@ import TaxCompliance from './pages/TaxCompliance';
 import BusinessRegistration from './pages/BusinessRegistration';
 import Partner from './pages/Partner';
 import ConsultationBooking from './pages/ConsultationBooking';
+import TrademarkIP from './pages/TrademarkIP';
 
 import ServicePage from './pages/ServicePage';
 import SeedDatabase from './pages/SeedDatabase';
@@ -34,11 +35,15 @@ function App() {
 
                     {/* Dynamic Service Routes */}
                     <Route path="/service/:id" element={<ServicePage />} />
+                    <Route path="/lawyers/:id" element={<ServicePage />} />
+                    <Route path="/notice/:id" element={<ServicePage />} />
+                    <Route path="/litigation/:id" element={<ServicePage />} />
+                    <Route path="/expert/:id" element={<ServicePage />} />
                     <Route path="/consumer/:id" element={<ServicePage />} />
                     <Route path="/doc/:id" element={<ServicePage />} />
                     <Route path="/ip/:id" element={<ServicePage />} />
                     <Route path="/seed" element={<SeedDatabase />} />
-                    <Route path="/trademark-ip" element={<Navigate to="/ip/trademark-registration" replace />} />
+                    <Route path="/trademark-ip" element={<TrademarkIP />} />
                 </Route>
 
                 {/* Admin Routes (Standalone) */}

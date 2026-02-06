@@ -59,21 +59,11 @@ const ContactUs = () => {
                             <div>
                                 <h3 className="font-bold text-navy mb-1">Our Office</h3>
                                 <p className="text-gray-600 text-sm">
-                                    123, Legal Avenue, High Court Road,<br />
-                                    Chennai, Tamil Nadu - 600104
+                                    Legaro Associates<br />
+                                    109 Padikuppam Road,<br />
+                                    Anna Nagar West<br />
+                                    Chennai, Tamil Nadu - 600040
                                 </p>
-                            </div>
-                        </div>
-
-                        {/* Phone */}
-                        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-start gap-4 hover:shadow-md transition-shadow">
-                            <div className="w-12 h-12 bg-navy/5 rounded-full flex items-center justify-center text-navy shrink-0">
-                                <Phone size={24} />
-                            </div>
-                            <div>
-                                <h3 className="font-bold text-navy mb-1">Phone Number</h3>
-                                <p className="text-gray-600 text-sm mb-1">+91 98765 43210</p>
-                                <p className="text-gray-500 text-xs">Mon - Sat, 9am - 7pm</p>
                             </div>
                         </div>
 
@@ -84,7 +74,7 @@ const ContactUs = () => {
                             </div>
                             <div>
                                 <h3 className="font-bold text-navy mb-1">Email Us</h3>
-                                <p className="text-gray-600 text-sm">support@legaro.in</p>
+                                <p className="text-gray-600 text-sm">support.legaro@gmail.com</p>
                                 <p className="text-gray-500 text-xs mt-1">We reply within 24 hours.</p>
                             </div>
                         </div>

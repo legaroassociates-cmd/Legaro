@@ -1,35 +1,81 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     User, FileText, Calendar, CreditCard, Check, ChevronRight, ChevronLeft,
-    MapPin, Globe, Phone, Mail, MessageSquare, Shield, Clock, Sun,
-    Home, Users, Gavel, AlertTriangle, ShoppingBag, Building2, Scale, FileSignature, Briefcase, Award
+    MapPin, Globe, Phone, Mail, MessageSquare, Shield, Clock
 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { db } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { cities } from '../data/cities'; // Restore import
 
 const ConsultationBooking = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [currentStep, setCurrentStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
+        email: '',
         phone: '',
         city: '',
         language: 'Tamil',
-        category: '', // Main Category
-        subCategory: '', // Sub-problem
+        category: '',
+        subCategory: '',
         description: '',
         date: null,
         timeSlot: '',
     });
 
-    // Validation State
+    // City Autocomplete State
+    const [filteredCities, setFilteredCities] = useState([]);
+    const [showCitySuggestions, setShowCitySuggestions] = useState(false);
+
+    useEffect(() => {
+        if (location.state) {
+            try {
+                const { name, email, phone, city, serviceName } = location.state;
+                setFormData(prev => ({
+                    ...prev,
+                    name: name || '',
+                    email: email || '',
+                    phone: phone || '',
+                    city: city || '',
+                    category: serviceName || '',
+                    subCategory: ''
+                }));
+            } catch (err) {
+                console.error("Error parsing location state:", err);
+            }
+        }
+    }, []);
+
+    const handleCityChange = (e) => {
+        const value = e.target.value;
+        setFormData({ ...formData, city: value });
+
+        if (value.length > 0 && Array.isArray(cities)) {
+            const filtered = cities.filter(city =>
+                city.toLowerCase().includes(value.toLowerCase())
+            );
+            setFilteredCities(filtered);
+            setShowCitySuggestions(true);
+        } else {
+            setShowCitySuggestions(false);
+        }
+    };
+
+    const selectCity = (city) => {
+        setFormData({ ...formData, city: city });
+        setShowCitySuggestions(false);
+    };
+
     const [errors, setErrors] = useState({});
     const [otpSent, setOtpSent] = useState(false);
+    const [generatedOtp, setGeneratedOtp] = useState('');
+    const [userOtp, setUserOtp] = useState('');
+    const [isVerified, setIsVerified] = useState(false);
     const [isVerifying, setIsVerifying] = useState(false);
 
-    // Steps Configuration
     const steps = [
         { id: 1, name: 'Client Details', icon: User },
         { id: 2, name: 'Legal Issue', icon: FileText },
@@ -37,7 +83,6 @@ const ConsultationBooking = () => {
         { id: 4, name: 'Payment', icon: CreditCard },
     ];
 
-    // Detailed Issue Data
     const legalIssuesData = [
         {
             id: 'legal-notices',
@@ -166,7 +211,6 @@ const ConsultationBooking = () => {
         }
     ];
 
-    // Helper: Next 7 Days Generator
     const getNext7Days = () => {
         const days = [];
         for (let i = 0; i < 7; i++) {
@@ -177,30 +221,26 @@ const ConsultationBooking = () => {
         return days;
     };
 
-    // Helper: Time Slots (Broad Periods)
-    const timeSlots = [
-        'Forenoon', 'Afternoon', 'Evening'
-    ];
+    const timeSlots = ['Forenoon', 'Afternoon', 'Evening'];
 
-    // Validation Logic
     const validateStep = (step) => {
         const newErrors = {};
 
         if (step === 1) {
             if (!formData.name.trim()) newErrors.name = 'Full Name is required';
+            if (!formData.email.trim()) newErrors.email = 'Email Address is required';
+            else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Invalid Email Address';
             if (!formData.phone.trim()) newErrors.phone = 'Mobile Number is required';
             else if (!/^\d{10}$/.test(formData.phone.replace(/\D/g, ''))) newErrors.phone = 'Invalid Mobile Number';
             if (!formData.city.trim()) newErrors.city = 'City is required';
         }
-
         if (step === 2) {
             if (!formData.category) newErrors.category = 'Please select a category';
             if (!formData.subCategory) newErrors.subCategory = 'Please select a specific issue';
         }
-
         if (step === 3) {
-            if (!formData.date) newErrors.date = 'Please select a date';
-            if (!formData.timeSlot) newErrors.timeSlot = 'Please select a time slot';
+            if (!formData.date) newErrors.date = 'Select a date';
+            if (!formData.timeSlot) newErrors.timeSlot = 'Select a time slot';
         }
 
         setErrors(newErrors);
@@ -212,403 +252,275 @@ const ConsultationBooking = () => {
             setCurrentStep((prev) => Math.min(prev + 1, 4));
         }
     };
-
     const handlePrev = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
 
     const handlePayment = async () => {
-        console.log("Starting payment process...");
         setIsSubmitting(true);
         try {
-            console.log("Saving booking to Firestore...", formData);
+            // Generate Custom Booking ID: DDMMYY-SERIAL
+            const date = new Date();
+            const d = String(date.getDate()).padStart(2, '0');
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const y = String(date.getFullYear()).slice(-2);
+            // Using last 4 digits of timestamp as a simple unique serial for now
+            const serial = Date.now().toString().slice(-4);
+            const bookingId = `${d}${m}${y}-${serial}`;
+
+            console.log("Saving...", formData);
             await addDoc(collection(db, "bookings"), {
                 ...formData,
+                bookingId: bookingId,
                 createdAt: serverTimestamp(),
                 status: 'paid',
                 amount: 299,
-                paymentId: 'DUMMY_PAY_' + Date.now()
+                paymentId: 'PAY_' + Date.now()
             });
-            console.log("Booking saved successfully!");
-            alert("Booking confirmed! We have received your request. Our team will connect with you shortly.");
+
+            // Send Confirmation Email
+            try {
+                await fetch('/send-booking-confirmation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        bookingId,
+                        amount: 299,
+                        ...formData
+                    })
+                });
+            } catch (emailErr) {
+                console.error("Failed to send confirmation email", emailErr);
+            }
+
+            alert(`Booking Confirmed! \nYour Booking ID is: ${bookingId}\n\nOur team will contact you shortly.`);
             navigate('/');
         } catch (error) {
-            console.error("Error booking consultation: ", error); // Check console for this!
-            alert(`Error: ${error.message}. Please try again or contact support.`);
+            console.error("Booking Error:", error);
+            alert("Error: " + error.message);
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    // WhatsApp Logic
     const sendWhatsAppOTP = () => {
         if (!formData.phone) return;
         setIsVerifying(true);
         setTimeout(() => {
             setIsVerifying(false);
             setOtpSent(true);
-            alert(`Simulated: OTP sent to ${formData.phone} via WhatsApp!`);
+            alert(`OTP sent to ${formData.phone}`);
         }, 1500);
     };
 
     return (
         <div className="min-h-screen bg-cream py-8 md:py-12">
             <div className="container mx-auto px-4 md:px-8">
-
-                {/* Header */}
                 <div className="text-center mb-10">
                     <h1 className="text-3xl md:text-4xl font-serif text-navy mb-3">Book Your Consultation</h1>
-                    <p className="text-gray-600">Secure a 30-minute session with a verified legal expert.</p>
+                    <p className="text-gray-600">Secure a 30-minute session.</p>
                 </div>
 
-                {/* Stepper */}
+                {/* Progress */}
                 <div className="max-w-4xl mx-auto mb-10">
                     <div className="flex justify-between items-center relative">
-                        {/* Progress Bar Background */}
                         <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-gray-200 -z-0"></div>
-                        {/* Active Progress Bar */}
-                        <div
-                            className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-gold transition-all duration-300 -z-0"
-                            style={{ width: `${((currentStep - 1) / 3) * 100}%` }}
-                        ></div>
-
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-gold transition-all duration-300 -z-0" style={{ width: `${((currentStep - 1) / 3) * 100}%` }}></div>
                         {steps.map((step) => (
                             <div key={step.id} className="relative z-10 flex flex-col items-center gap-2">
-                                <div
-                                    className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center font-bold text-sm md:text-base transition-all duration-300 ${currentStep >= step.id ? 'bg-navy text-gold ring-4 ring-cream' : 'bg-gray-200 text-gray-500 ring-4 ring-cream'
-                                        }`}
-                                >
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${currentStep >= step.id ? 'bg-navy text-gold ring-4 ring-cream' : 'bg-gray-200 text-gray-500'}`}>
                                     {currentStep > step.id ? <Check size={20} /> : <step.icon size={20} />}
                                 </div>
-                                <span className={`text-xs md:text-sm font-semibold hidden md:block ${currentStep >= step.id ? 'text-navy' : 'text-gray-400'}`}>
-                                    {step.name}
-                                </span>
+                                <span className={`text-xs font-semibold ${currentStep >= step.id ? 'text-navy' : 'text-gray-400'}`}>{step.name}</span>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* Main Content Area */}
                 <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-6">
-
-                    {/* LEFT: Step Content */}
-                    <div className="flex-grow bg-white rounded-2xl shadow-xl p-4 md:p-8 border border-gray-100 min-h-[400px]">
-
-                        {/* STEP 1: CLIENT DETAILS */}
+                    <div className="w-full lg:w-2/3 bg-white rounded-2xl shadow-xl p-6 md:p-8 min-h-[400px]">
                         {currentStep === 1 && (
-                            <div className="animate-fade-in space-y-6">
-                                <h2 className="text-xl font-serif text-navy mb-4 flex items-center gap-2">
-                                    <User className="text-gold" size={24} /> Personal Details
-                                </h2>
-
+                            <div className="space-y-6">
+                                <h2 className="text-xl font-serif text-navy flex items-center gap-2"><User size={24} className="text-gold" /> Personal Details</h2>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-2">Full Name <span className="text-red-500">*</span></label>
-                                        <input
-                                            type="text"
-                                            className={`w-full px-4 py-3 rounded-lg border focus:ring-2 outline-none transition-all ${errors.name ? 'border-red-500 focus:ring-red-200' : 'border-gray-200 focus:border-gold focus:ring-gold/20'}`}
-                                            placeholder="Enter your name"
-                                            value={formData.name}
-                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                        />
+                                        <input type="text" placeholder="Name *" className={`w-full p-3 border rounded-lg ${errors.name ? 'border-red-500' : ''}`} value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
                                         {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-2">Mobile Number <span className="text-red-500">*</span></label>
-                                        <input
-                                            type="tel"
-                                            className={`w-full px-4 py-3 rounded-lg border focus:ring-2 outline-none transition-all ${errors.phone ? 'border-red-500 focus:ring-red-200' : 'border-gray-200 focus:border-gold focus:ring-gold/20'}`}
-                                            placeholder="+91"
-                                            value={formData.phone}
-                                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                        />
+                                        <input type="email" placeholder="Email *" className={`w-full p-3 border rounded-lg ${errors.email ? 'border-red-500' : ''}`} value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} />
+                                        {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                                    </div>
+                                    <div>
+                                        <input type="tel" placeholder="Phone *" className={`w-full p-3 border rounded-lg ${errors.phone ? 'border-red-500' : ''}`} value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
                                         {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-2">City <span className="text-red-500">*</span></label>
-                                        <div className="relative">
-                                            <MapPin className="absolute left-3 top-3.5 text-gray-400" size={18} />
-                                            <input
-                                                type="text"
-                                                className={`w-full pl-10 pr-4 py-3 rounded-lg border focus:ring-2 outline-none transition-all ${errors.city ? 'border-red-500 focus:ring-red-200' : 'border-gray-200 focus:border-gold focus:ring-gold/20'}`}
-                                                placeholder="e.g. Chennai"
-                                                value={formData.city}
-                                                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                                            />
-                                        </div>
+                                    <div className="relative">
+                                        <input type="text" placeholder="City *" className={`w-full p-3 border rounded-lg ${errors.city ? 'border-red-500' : ''}`} value={formData.city} onChange={handleCityChange} onBlur={() => setTimeout(() => setShowCitySuggestions(false), 200)} />
                                         {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-2">Preferred Language</label>
-                                        <div className="relative">
-                                            <Globe className="absolute left-3 top-3.5 text-gray-400" size={18} />
-                                            <select
-                                                className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:border-gold focus:ring-2 focus:ring-gold/20 outline-none transition-all appearance-none bg-white"
-                                                value={formData.language}
-                                                onChange={(e) => setFormData({ ...formData, language: e.target.value })}
-                                            >
-                                                <option>Tamil</option>
-                                                <option>English</option>
-                                                <option>Hindi</option>
-                                            </select>
-                                        </div>
+                                        {showCitySuggestions && (
+                                            <div className="absolute z-10 w-full bg-white shadow-lg max-h-40 overflow-auto border mt-1">
+                                                {filteredCities.map((c, i) => <div key={i} className="p-2 hover:bg-gray-100 cursor-pointer" onClick={() => selectCity(c)}>{c}</div>)}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
                         )}
 
-                        {/* STEP 2: LEGAL ISSUE (TOP/BOTTOM SPLIT + MOBILE DROPDOWN) */}
                         {currentStep === 2 && (
-                            <div className="animate-fade-in flex flex-col">
-                                <h2 className="text-2xl font-serif text-navy mb-4 flex items-center gap-2">
-                                    <FileText className="text-gold" /> Select Legal Details
-                                </h2>
-
-                                {/* MOBILE VIEW: Dropdowns */}
-                                <div className="md:hidden space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-2">Category</label>
-                                        <div className="relative">
-                                            <select
-                                                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-gold focus:ring-2 focus:ring-gold/20 outline-none transition-all appearance-none bg-white font-medium text-navy"
-                                                value={formData.category}
-                                                onChange={(e) => setFormData({ ...formData, category: e.target.value, subCategory: '' })}
-                                            >
-                                                <option value="">-- Select Category --</option>
-                                                {legalIssuesData.map((issue) => (
-                                                    <option key={issue.id} value={issue.label}>{issue.label}</option>
-                                                ))}
-                                            </select>
-                                            <ChevronRight className="absolute right-3 top-3.5 text-gray-400 rotate-90" size={18} />
-                                        </div>
-                                    </div>
-
-                                    {formData.category && (
-                                        <div className="animate-fade-in">
-                                            <label className="block text-sm font-bold text-gray-700 mb-2">Specific Issue</label>
-                                            <div className="relative">
-                                                <select
-                                                    className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-gold focus:ring-2 focus:ring-gold/20 outline-none transition-all appearance-none bg-white font-medium text-navy"
-                                                    value={formData.subCategory}
-                                                    onChange={(e) => setFormData({ ...formData, subCategory: e.target.value })}
-                                                >
-                                                    <option value="">-- Select Issue --</option>
-                                                    {legalIssuesData.find(i => i.label === formData.category)?.subIssues.map((sub, idx) => (
-                                                        <option key={idx} value={sub}>{sub}</option>
-                                                    ))}
-                                                </select>
-                                                <ChevronRight className="absolute right-3 top-3.5 text-gray-400 rotate-90" size={18} />
-                                            </div>
-                                        </div>
-                                    )}
+                            <div className="space-y-6">
+                                <h2 className="text-xl font-serif text-navy flex items-center gap-2"><FileText size={24} className="text-gold" /> Legal Details</h2>
+                                <div className="flex flex-wrap gap-2">
+                                    {legalIssuesData.map(i => (
+                                        <button key={i.id} onClick={() => setFormData({ ...formData, category: i.label, subCategory: '' })} className={`px-4 py-2 rounded-full border ${formData.category === i.label ? 'bg-navy text-white' : 'bg-white'}`}>
+                                            {i.label}
+                                        </button>
+                                    ))}
                                 </div>
+                                {errors.category && <p className="text-red-500 text-xs">{errors.category}</p>}
 
-                                {/* DESKTOP VIEW: Top/Bottom Split with Compact Buttons */}
-                                <div className="hidden md:flex flex-col gap-6 flex-grow">
-
-                                    {/* Top: Categories */}
-                                    <div className="flex flex-col">
-                                        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">1. Select Category</h3>
+                                {formData.category && (
+                                    <div className="bg-gray-50 p-4 rounded-xl">
                                         <div className="flex flex-wrap gap-2">
-                                            {legalIssuesData.map((issue) => (
-                                                <button
-                                                    key={issue.id}
-                                                    onClick={() => setFormData({ ...formData, category: issue.label, subCategory: '' })}
-                                                    className={`px-4 py-2 text-xs font-bold rounded-full border transition-all whitespace-nowrap ${formData.category === issue.label
-                                                        ? 'bg-navy text-white border-navy shadow-md ring-2 ring-gold/100'
-                                                        : 'bg-white text-gray-600 border-gray-300 hover:border-gold hover:text-navy hover:shadow-sm'
-                                                        }`}
-                                                >
-                                                    {issue.label}
-                                                </button>
+                                            {legalIssuesData.find(i => i.label === formData.category)?.subIssues?.map((s, idx) => (
+                                                <button key={idx} onClick={() => setFormData({ ...formData, subCategory: s })} className={`px-3 py-2 rounded-lg border ${formData.subCategory === s ? 'bg-gold text-white' : 'bg-white'}`}>{s}</button>
                                             ))}
                                         </div>
                                     </div>
+                                )}
+                                {errors.subCategory && <p className="text-red-500 text-xs">{errors.subCategory}</p>}
 
-                                    {/* Divider */}
-                                    {/* <div className="h-px bg-gray-100 w-full"></div> */}
-
-                                    {/* Bottom: Sub-issues */}
-                                    <div className="flex flex-col flex-grow">
-                                        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">2. Select Specific Issue</h3>
-                                        <div className="bg-gray-50 rounded-xl p-6 border border-gray-100 min-h-[100px]">
-                                            {formData.category ? (
-                                                <div className="flex flex-wrap gap-2">
-                                                    {legalIssuesData.find(i => i.label === formData.category)?.subIssues.map((sub, idx) => (
-                                                        <button
-                                                            key={idx}
-                                                            onClick={() => setFormData({ ...formData, subCategory: sub })}
-                                                            className={`px-3 py-2 text-xs font-medium rounded-lg border transition-all text-center ${formData.subCategory === sub
-                                                                ? 'bg-gold text-white border-gold shadow-sm'
-                                                                : 'bg-white text-gray-600 border-gray-00 hover:border-navy hover:text-navy hover:bg-white'
-                                                                }`}
-                                                        >
-                                                            {sub}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            ) : (
-                                                <div className="h-full flex flex-col items-center justify-center text-gray-400 opacity-50 py-10">
-                                                    <p className="text-sm font-medium">Select a category above to view specific services</p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Description Field - Always visible but bottom */}
-                                <div className="pt-6 border-t border-gray-100">
-                                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">3. Additional Details (Optional)</h3>
-                                    <input
-                                        type="text"
-                                        className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-gold focus:ring-2 focus:ring-gold/20 outline-none transition-all text-sm"
-                                        placeholder="Briefly describe your case..."
+                                <div className="mt-4">
+                                    <label className="block text-sm font-semibold text-navy mb-2">Description <span className="text-gray-400 font-normal">(Optional)</span></label>
+                                    <textarea
+                                        className="w-full p-3 border rounded-lg resize-none focus:outline-none focus:border-gold"
+                                        rows="4"
+                                        placeholder="Briefly describe your issue..."
+                                        maxLength={500}
                                         value={formData.description}
                                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    />
-                                    {(errors.category || errors.subCategory) && (
-                                        <p className="text-red-500 text-xs mt-2 text-center font-medium">Please select a Category and a Sub-issue to proceed.</p>
-                                    )}
+                                    ></textarea>
+                                    <div className="text-right text-xs text-gray-400 mt-1">
+                                        {formData.description.length}/500 characters
+                                    </div>
                                 </div>
                             </div>
                         )}
 
-                        {/* STEP 3: SLOT SELECTION */}
                         {currentStep === 3 && (
-                            <div className="animate-fade-in space-y-6">
-                                <h2 className="text-2xl font-serif text-navy mb-4 flex items-center gap-2">
-                                    <Calendar className="text-gold" /> Select Date & Time
-                                </h2>
-
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-3">Pick a Date <span className="text-red-500">*</span></label>
-                                    <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
-                                        {getNext7Days().map((date, idx) => {
-                                            const isSelected = formData.date?.toDateString() === date.toDateString();
-                                            return (
-                                                <button
-                                                    key={idx}
-                                                    onClick={() => setFormData({ ...formData, date: date })}
-                                                    className={`flex-shrink-0 w-20 flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${isSelected
-                                                        ? 'bg-navy text-white border-navy shadow-lg transform scale-105'
-                                                        : 'bg-white border-gray-200 hover:border-gold'
-                                                        }`}
-                                                >
-                                                    <span className="text-xs uppercase opacity-70 mb-1">{date.toLocaleDateString('en-US', { weekday: 'short' })}</span>
-                                                    <span className="text-xl font-bold">{date.getDate()}</span>
-                                                    <span className="text-xs mt-1">{date.toLocaleDateString('en-US', { month: 'short' })}</span>
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                    {errors.date && <p className="text-red-500 text-xs mt-1">{errors.date}</p>}
+                            <div className="space-y-6">
+                                <h2 className="text-xl font-serif text-navy flex items-center gap-2"><Calendar size={24} className="text-gold" /> Date & Time</h2>
+                                <div className="flex gap-3 overflow-auto pb-2">
+                                    {getNext7Days().map((d, i) => (
+                                        <button key={i} onClick={() => setFormData({ ...formData, date: d })} className={`p-3 border rounded-xl min-w-[80px] ${formData.date?.toDateString() === d.toDateString() ? 'bg-navy text-white' : 'bg-white'} ${errors.date ? 'border-red-500' : ''}`}>
+                                            <div className="font-bold">{d.getDate()}</div>
+                                            <div className="text-xs">{d.toLocaleDateString('en-US', { month: 'short' })}</div>
+                                        </button>
+                                    ))}
                                 </div>
+                                {errors.date && <p className="text-red-500 text-xs">{errors.date}</p>}
 
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-3">Pick a Time Slot <span className="text-red-500">*</span></label>
-                                    <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
-                                        {timeSlots.map((slot) => (
-                                            <button
-                                                key={slot}
-                                                onClick={() => setFormData({ ...formData, timeSlot: slot })}
-                                                className={`py-2 px-1 rounded-lg text-sm font-medium border transition-all ${formData.timeSlot === slot
-                                                    ? 'bg-gold text-white border-gold shadow-md'
-                                                    : 'bg-white text-gray-600 border-gray-200 hover:border-navy hover:text-navy'
-                                                    }`}
-                                            >
-                                                {slot}
-                                            </button>
-                                        ))}
-                                    </div>
-                                    {errors.timeSlot && <p className="text-red-500 text-xs mt-1">{errors.timeSlot}</p>}
+                                <div className="flex gap-3 flex-wrap">
+                                    {timeSlots.map(t => (
+                                        <button key={t} onClick={() => setFormData({ ...formData, timeSlot: t })} className={`px-4 py-2 border rounded-lg ${formData.timeSlot === t ? 'bg-gold text-white' : 'bg-white'} ${errors.timeSlot ? 'border-red-500' : ''}`}>{t}</button>
+                                    ))}
                                 </div>
+                                {errors.timeSlot && <p className="text-red-500 text-xs">{errors.timeSlot}</p>}
                             </div>
                         )}
 
-                        {/* STEP 4: PAYMENT */}
                         {currentStep === 4 && (
-                            <div className="animate-fade-in space-y-6">
-                                <h2 className="text-2xl font-serif text-navy mb-4 flex items-center gap-2">
-                                    <Shield className="text-gold" /> Verification & Payment
-                                </h2>
+                            <div className="space-y-6">
+                                <h2 className="text-xl font-serif text-navy flex items-center gap-2"><Shield size={24} className="text-gold" /> Verify & Book</h2>
 
-                                <div className="bg-gray-50 border border-gray-200 rounded-xl p-6">
-                                    <div className="mb-6">
-                                        <label className="block text-sm font-bold text-gray-700 mb-2">Verify Mobile Number</label>
-                                        <div className="flex gap-2">
-                                            <input
-                                                type="tel"
-                                                value={formData.phone}
-                                                readOnly
-                                                className="w-full px-4 py-3 rounded-lg bg-white border border-gray-200 text-gray-500"
-                                            />
+                                <div className="bg-gray-50 p-6 rounded-xl border border-gray-100">
+                                    <h3 className="font-bold text-navy mb-2">Email Verification</h3>
+                                    <p className="text-sm text-gray-500 mb-6">
+                                        We will send a One-Time Password (OTP) to <strong>{formData.email}</strong> to verify your booking.
+                                    </p>
+
+                                    {!otpSent ? (
+                                        <button
+                                            onClick={async () => {
+                                                const code = Math.floor(100000 + Math.random() * 900000).toString();
+                                                setGeneratedOtp(code);
+                                                setOtpSent(true);
+
+                                                try {
+                                                    // Request to Cloudflare Pages Function (functions/send-otp.js)
+                                                    const res = await fetch('/send-otp', {
+                                                        method: 'POST',
+                                                        headers: { 'Content-Type': 'application/json' },
+                                                        body: JSON.stringify({ email: formData.email, otp: code })
+                                                    });
+
+                                                    if (!res.ok) {
+                                                        const errData = await res.json();
+                                                        console.error("Resend Error Response:", errData);
+                                                        // Show the actual error message from Resend (e.g. "From address is not allowed")
+                                                        throw new Error(errData.message || errData.error || 'Failed to send OTP');
+                                                    }
+
+                                                    alert(`✨ Great! We've sent a verification code to ${formData.email}.\n\nPlease check your inbox (and spam folder) to verify your booking.`);
+                                                } catch (error) {
+                                                    console.error("Failed to send OTP", error);
+                                                    alert(`Failed to send OTP: ${error.message}`);
+                                                    setOtpSent(false); // Reset to allow retry
+                                                }
+                                            }}
+                                            className="w-full bg-navy text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-all font-semibold"
+                                        >
+                                            Send OTP to Email
+                                        </button>
+                                    ) : (
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="block text-sm font-semibold text-gray-700 mb-2">Enter OTP</label>
+                                                <input
+                                                    type="text"
+                                                    maxLength={6}
+                                                    value={userOtp}
+                                                    onChange={(e) => setUserOtp(e.target.value)}
+                                                    className="w-full p-3 border rounded-lg text-center text-2xl tracking-widest font-bold"
+                                                    placeholder="000000"
+                                                />
+                                            </div>
                                             <button
-                                                onClick={sendWhatsAppOTP}
-                                                disabled={isVerifying || otpSent}
-                                                className={`px-6 rounded-lg font-bold text-sm whitespace-nowrap transition-all ${otpSent
-                                                    ? 'bg-green-600 text-white cursor-default'
-                                                    : 'bg-navy text-white hover:bg-opacity-90'
-                                                    }`}
+                                                onClick={() => {
+                                                    if (userOtp === generatedOtp) {
+                                                        setIsVerified(true);
+                                                        handlePayment();
+                                                    } else {
+                                                        alert("Invalid OTP. Please try again.");
+                                                    }
+                                                }}
+                                                className="w-full bg-gold text-white px-6 py-3 rounded-lg hover:bg-yellow-600 transition-all font-bold shadow-md"
+                                                disabled={isVerifying}
                                             >
-                                                {isVerifying ? 'Sending...' : otpSent ? 'OTP Sent ✓' : 'Send WhatsApp OTP'}
+                                                {isVerifying ? "Verifying..." : "Verify & Confirm Booking"}
                                             </button>
-                                        </div>
-                                        <p className="text-xs text-gray-500 mt-2">
-                                            We will send a One Time Password to your WhatsApp number.
-                                        </p>
-                                    </div>
-
-                                    {otpSent && (
-                                        <div className="mb-2 animate-fade-in">
-                                            <label className="block text-sm font-bold text-gray-700 mb-2">Enter OTP</label>
-                                            <input
-                                                type="text"
-                                                placeholder="XXXX"
-                                                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-gold focus:ring-2 focus:ring-gold/20 outline-none transition-all text-center tracking-widest text-lg"
-                                            />
+                                            <button
+                                                onClick={() => setOtpSent(false)}
+                                                className="w-full text-sm text-gray-500 hover:text-navy underline"
+                                            >
+                                                Resend OTP
+                                            </button>
                                         </div>
                                     )}
                                 </div>
-
-                                <div className="flex items-center gap-3 p-4 bg-green-50 text-green-800 rounded-lg border border-green-200 text-sm">
-                                    <Shield size={18} />
-                                    <span className="font-semibold">Payments are 100% Secure & Refundable upon cancellation.</span>
-                                </div>
                             </div>
                         )}
 
-                        {/* Navigation Buttons */}
-                        <div className="flex justify-between mt-6 pt-6 border-t border-gray-100">
-                            <button
-                                onClick={handlePrev}
-                                disabled={currentStep === 1}
-                                className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors ${currentStep === 1 ? 'text-gray-300 cursor-not-allowed' : 'text-navy hover:bg-gray-100'
-                                    }`}
-                            >
-                                <ChevronLeft size={20} /> Back
-                            </button>
-
-                            {currentStep < 4 ? (
-                                <button
-                                    onClick={handleNext}
-                                    className="bg-navy text-white px-8 py-3 rounded-lg font-bold shadow-lg hover:shadow-xl hover:bg-[#2a344a] transition-all flex items-center gap-2 ml-auto"
-                                >
-                                    Next Step <ChevronRight size={20} />
-                                </button>
-                            ) : (
-                                <button
-                                    type="button"
-                                    onClick={handlePayment}
-                                    disabled={isSubmitting}
-                                    className="bg-gradient-to-r from-gold to-gold-dark text-white px-8 py-3 rounded-lg font-bold shadow-lg hover:shadow-xl transition-all flex items-center gap-2 transform hover:-translate-y-1 ml-auto disabled:opacity-70 disabled:cursor-not-allowed"
-                                >
-                                    {isSubmitting ? 'Processing...' : 'Pay ₹299 & Book'} <Check size={20} />
-                                </button>
-                            )}
+                        <div className="flex justify-between mt-8 pt-6 border-t">
+                            <button onClick={handlePrev} disabled={currentStep === 1} className="text-gray-500 disabled:opacity-50">Back</button>
+                            {currentStep < 4 ?
+                                <button onClick={handleNext} className="bg-navy text-white px-6 py-3 rounded-lg">Next Step</button> :
+                                <button onClick={handlePayment} className="bg-gold text-white px-6 py-3 rounded-lg">Pay ₹299 & Book</button>
+                            }
                         </div>
-
                     </div>
 
                     {/* RIGHT: Booking Summary Sticky Card */}
-                    <div className="lg:w-1/3">
+                    <div className="w-full lg:w-1/3 flex-shrink-0">
                         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sticky top-24">
                             <h3 className="text-xl font-serif text-navy mb-4 border-b border-gray-100 pb-3">Booking Summary</h3>
 
@@ -662,7 +574,7 @@ const ConsultationBooking = () => {
 
                 </div>
             </div>
-        </div >
+        </div>
     );
 };
 

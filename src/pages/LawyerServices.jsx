@@ -5,47 +5,139 @@ import { serviceDetails } from '../data/serviceDetails';
 import { ChevronRight } from 'lucide-react';
 
 const LawyerServices = () => {
+    const [searchQuery, setSearchQuery] = React.useState('');
+    const [activeCategory, setActiveCategory] = React.useState('All');
+
+    // 1. Group services by Category
+    const groupedServices = Object.entries(serviceDetails).reduce((acc, [key, service]) => {
+        const category = service.category || 'Other Services';
+        if (!acc[category]) {
+            acc[category] = [];
+        }
+        acc[category].push({ key, ...service });
+        return acc;
+    }, {});
+
+    // Define category order
+    const categoryOrder = [
+        "All",
+        "Lawyers Specialization",
+        "Expert Services",
+        "Legal Notices",
+        "Litigation",
+        "Consumer Complaints",
+        "NGO & Section 8",
+        "NGO Compliance",
+        "Property Documentation",
+        "Licenses & Others",
+        "Trademark Services",
+        "Copyright & Patent",
+        "Infringement & Design"
+    ];
+
+    // Filter Logic
+    const filteredServices = React.useMemo(() => {
+        let services = [];
+
+        // Aggregate all services if "All" is active, otherwise get specific category
+        if (activeCategory === 'All') {
+            services = Object.entries(serviceDetails).map(([key, s]) => ({ key, ...s }));
+        } else {
+            services = groupedServices[activeCategory] || [];
+        }
+
+        // Apply Search
+        if (searchQuery.trim()) {
+            const lowerQuery = searchQuery.toLowerCase();
+            return services.filter(s =>
+                s.title.toLowerCase().includes(lowerQuery) ||
+                s.description.toLowerCase().includes(lowerQuery)
+            );
+        }
+
+        return services;
+    }, [activeCategory, searchQuery, groupedServices]);
+
     return (
-        <div className="min-h-screen bg-[#FDFBF7] py-16 px-4 md:px-8 lg:px-16">
+        <div className="min-h-screen bg-[#FDFBF7] py-12 px-4 md:px-8 lg:px-16">
             <div className="max-w-7xl mx-auto">
-                <h1 className="text-4xl md:text-5xl font-serif text-navy mb-4">Our Legal Services</h1>
-                <p className="text-gray-600 mb-12 max-w-2xl">
-                    Explore our comprehensive range of legal solutions tailored to your needs.
-                    Click on a service to learn more and book a consultation.
-                </p>
+                <div className="text-center mb-12">
+                    <h1 className="text-4xl md:text-5xl font-serif text-navy mb-4">Our Legal Services</h1>
+                    <p className="text-gray-600 max-w-2xl mx-auto">
+                        Search and explore our comprehensive range of legal solutions.
+                    </p>
+                </div>
 
+                {/* SEARCH BAR */}
+                <div className="max-w-xl mx-auto mb-10 relative">
+                    <input
+                        type="text"
+                        placeholder="Search for a service (e.g., Divorce, Property, Trademark)..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full p-4 pl-12 rounded-full border border-gray-200 shadow-sm focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-all"
+                    />
+                    <svg className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </div>
+
+                {/* CATEGORY TOGGLES */}
+                <div className="flex flex-wrap justify-center gap-3 mb-12">
+                    {categoryOrder.map((cat) => (
+                        <button
+                            key={cat}
+                            onClick={() => {
+                                setActiveCategory(cat);
+                                setSearchQuery(''); // Clear search on category switch for clarity? Or keep? Keeping clear is often safer UX.
+                            }}
+                            className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${activeCategory === cat
+                                    ? 'bg-navy text-gold shadow-md transform scale-105'
+                                    : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                                }`}
+                        >
+                            {cat}
+                        </button>
+                    ))}
+                </div>
+
+                {/* RESULTS GRID */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {Object.entries(serviceDetails).map(([key, service]) => {
-                        const Icon = service.icon;
-                        const linkPath = `/lawyers/${key}`; // Defaulting to /lawyers/ prefix for simplicity, though some are /notice/ etc in Navbar. 
-                        // In App.jsx, all prefixes point to ServicePage, so this works if we want to be generic, 
-                        // BUT better to use the specific prefixes if we want perfect Breadcrumbs. 
-                        // For now, let's use the matching prefix logic or just generic.
+                    {filteredServices.length > 0 ? (
+                        filteredServices.map((service) => {
+                            const { key, title, description, icon: Icon, category } = service;
 
-                        // Simple mapper for demonstration
-                        let prefix = '/lawyers';
-                        if (['money-recovery', 'recovery-dues', 'itr', 'caveat', 'tenant'].includes(key)) prefix = '/notice';
-                        if (['defamation', 'ip', 'employment', 'rera'].includes(key)) prefix = '/litigation';
-                        if (['automobile', 'bank', 'ecommerce', 'real-estate', 'insurance', 'medical', 'travel', 'tech'].includes(key)) prefix = '/consumer';
-                        if (['tmt', 'risk'].includes(key)) prefix = '/expert';
+                            // Dynamic routing prefix
+                            let prefix = '/lawyers';
+                            if (category?.includes('Consumer')) prefix = '/consumer';
+                            if (category?.includes('Litigation')) prefix = '/litigation';
+                            if (category?.includes('Trademark')) prefix = '/ip';
+                            if (category?.includes('Expert')) prefix = '/expert';
 
-                        return (
-                            <Link
-                                key={key}
-                                to={`${prefix}/${key}`}
-                                className="group bg-white rounded-xl p-6 border border-gray-100 shadow-sm hover:shadow-md hover:border-gold/30 transition-all flex flex-col"
-                            >
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="w-12 h-12 rounded-full bg-navy/5 text-navy flex items-center justify-center group-hover:bg-navy group-hover:text-gold transition-colors">
-                                        <Icon size={24} />
+                            return (
+                                <Link
+                                    key={key}
+                                    to={`${prefix}/${key}`}
+                                    className="group bg-white rounded-xl p-6 border border-gray-100 shadow-sm hover:shadow-md hover:border-gold/30 transition-all flex flex-col h-full"
+                                >
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="w-12 h-12 rounded-full bg-navy/5 text-navy flex items-center justify-center group-hover:bg-navy group-hover:text-gold transition-colors">
+                                            <Icon size={24} />
+                                        </div>
+                                        <ChevronRight className="text-gray-300 group-hover:text-gold transition-colors" />
                                     </div>
-                                    <ChevronRight className="text-gray-300 group-hover:text-gold transition-colors" />
-                                </div>
-                                <h3 className="text-xl font-bold text-navy mb-2 group-hover:text-gold transition-colors">{service.title}</h3>
-                                <p className="text-sm text-gray-500 line-clamp-2">{service.description}</p>
-                            </Link>
-                        );
-                    })}
+                                    <div className="mb-2">
+                                        <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">{category}</span>
+                                    </div>
+                                    <h3 className="text-xl font-bold text-navy mb-2 group-hover:text-gold transition-colors">{title}</h3>
+                                    <p className="text-sm text-gray-500 line-clamp-2">{description}</p>
+                                </Link>
+                            );
+                        })
+                    ) : (
+                        <div className="col-span-full text-center py-20">
+                            <p className="text-gray-500 text-lg">No services found matching "{searchQuery}".</p>
+                            <button onClick={() => { setSearchQuery(''); setActiveCategory('All'); }} className="mt-4 text-gold font-semibold hover:underline">Clear Search</button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

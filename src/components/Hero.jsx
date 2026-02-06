@@ -11,7 +11,7 @@ const Hero = () => {
         - block: Removes bottom whitespace.
       */}
             <img
-                src="/assets/hero-image.png"
+                src="/assets/hero-image.jpeg"
                 alt="Hero Background"
                 className="w-full h-auto block"
             />
@@ -26,13 +26,10 @@ const Hero = () => {
                 <div className="container mx-auto px-4 md:px-16">
 
                     {/* Content Container - Matching previous alignment */}
-                    <div className="md:w-[60%] lg:w-[50%]">
+                    <div className="md:w-[80%] lg:w-[70%]">
 
-                        <h1 className="text-2xl md:text-5xl lg:text-[3.5rem] font-serif mb-2 md:mb-6 leading-[1.1] tracking-wide text-white drop-shadow-lg">
-                            Connect with Top <br />
-                            <span className="text-[#E5C585]">
-                                Lawyers in Tamil Nadu
-                            </span>
+                        <h1 className="text-2xl md:text-5xl lg:text-[3.5rem] font-serif mb-2 md:mb-6 leading-[1.1] tracking-wide text-white drop-shadow-lg whitespace-nowrap">
+                            Connect with Top <span className="text-[#E5C585]">Lawyers in Tamil Nadu</span>
                         </h1>
 
                         <h2 className="text-sm md:text-2xl font-light mb-4 md:mb-8 text-white tracking-wide drop-shadow-md">
@@ -60,22 +57,8 @@ const Hero = () => {
                             </button>
                         </Link>
 
-                        {/* Tamil Tagline - Hidden on small mobile to avoid crowd, scaling on desktop */}
-                        <div className="mt-4 md:mt-12 hidden md:block">
-                            <p className="text-xl md:text-2xl font-bold text-navy drop-shadow-sm inline-block bg-cream/90 px-6 py-3 rounded-md shadow-lg">
-                                உங்கள் வழக்கறிஞரை ஆன்லைனில் எளிதாக அணுகுங்கள்
-                            </p>
-                        </div>
-
                     </div>
                 </div>
-            </div>
-
-            {/* Mobile-only fallback for Tagline if needed below image */}
-            <div className="md:hidden bg-cream p-4 text-center border-t border-gold/30">
-                <p className="text-base font-bold text-navy">
-                    உங்கள் வழக்கறிஞரை ஆன்லைனில் எளிதாக அணுகுங்கள்
-                </p>
             </div>
         </div>
     );

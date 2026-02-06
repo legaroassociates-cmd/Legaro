@@ -1,23 +1,31 @@
 
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
-    Check, ChevronRight, User, Mail, Phone, Calendar,
-    ArrowRight, Star, Shield, Clock, Scale
+    Check, ChevronRight, User, Mail, Phone, Calendar, ArrowRight, Star, Shield, Clock, Scale, MapPin
 } from 'lucide-react';
 import { serviceDetails, defaultService } from '../data/serviceDetails';
+import { cities } from '../data/cities';
 import { db } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 const ServicePage = () => {
     const { id } = useParams();
     const [service, setService] = useState(defaultService);
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         phone: '',
+        city: '',
         message: ''
     });
+
+    // City Autocomplete State
+    const [filteredCities, setFilteredCities] = useState([]);
+    const [showCityDropdown, setShowCityDropdown] = useState(false);
+    const dropdownRef = useRef(null);
+
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
@@ -32,29 +40,57 @@ const ServicePage = () => {
         }
     }, [id]);
 
+    // Click outside to close city dropdown
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setShowCityDropdown(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleCityChange = (e) => {
+        const input = e.target.value;
+        setFormData({ ...formData, city: input });
+
+        if (input.length > 2) {
+            if (Array.isArray(cities)) {
+                const filtered = cities.filter(city =>
+                    city.toLowerCase().includes(input.toLowerCase())
+                ).slice(0, 10); // Limit to 10 results
+                setFilteredCities(filtered);
+                setShowCityDropdown(true);
+            }
+        } else {
+            setShowCityDropdown(false);
+        }
+    };
+
+    const selectCity = (city) => {
+        setFormData({ ...formData, city });
+        setShowCityDropdown(false);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
-        try {
-            await addDoc(collection(db, "service_inquiries"), {
+
+        // Redirect to Consultation Booking with pre-filled data
+        // Uses bookingCategory if available to match the Dropdown options in ConsultationBooking
+        navigate('/book-consultation', {
+            state: {
                 ...formData,
-                serviceId: id || 'unknown',
-                serviceName: service.title,
-                createdAt: serverTimestamp(),
-                status: 'new'
-            });
-            alert("Request submitted! We will contact you regarding " + service.title + " shortly.");
-            setFormData({ name: '', email: '', phone: '', message: '' });
-        } catch (error) {
-            console.error("Error submitting request: ", error);
-            alert("Error submitting request. Please try again.");
-        } finally {
-            setIsSubmitting(false);
-        }
+                category: service.bookingCategory || 'Others', // Map to correct category
+                serviceName: service.title
+            }
+        });
+        setIsSubmitting(false);
     };
 
     // Safety check: Ensure Icon is a valid component
@@ -172,6 +208,41 @@ const ServicePage = () => {
                                         placeholder="+91 98765 43210"
                                         className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:border-gold focus:ring-2 focus:ring-gold/20 outline-none transition-all"
                                     />
+                                </div>
+                            </div>
+
+                            <div ref={dropdownRef}>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">City</label>
+                                <div className="relative">
+                                    <MapPin className="absolute left-3 top-3.5 text-gray-400 z-10" size={18} />
+                                    <input
+                                        name="city"
+                                        value={formData.city}
+                                        onChange={handleCityChange}
+                                        onFocus={() => {
+                                            if (formData.city.length > 2) setShowCityDropdown(true);
+                                        }}
+                                        required
+                                        type="text"
+                                        placeholder="Type to search city..."
+                                        className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:border-gold focus:ring-2 focus:ring-gold/20 outline-none transition-all"
+                                        autoComplete="off"
+                                    />
+
+                                    {/* City Dropdown */}
+                                    {showCityDropdown && filteredCities.length > 0 && (
+                                        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-60 overflow-y-auto">
+                                            {filteredCities.map((city, index) => (
+                                                <div
+                                                    key={index}
+                                                    onClick={() => selectCity(city)}
+                                                    className="px-4 py-2 hover:bg-navy/5 cursor-pointer text-sm text-gray-700 transition-colors"
+                                                >
+                                                    {city}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 

@@ -1,8 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
-import { db, storage } from '../firebase';
+import { db } from '../firebase';
 import { collection, addDoc, getDocs, query, where, updateDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { lawyersData } from '../data/lawyers';
 import { CheckCircle, AlertTriangle, Loader } from 'lucide-react';
 
@@ -37,35 +36,63 @@ const SeedDatabase = () => {
         }
     };
 
+    // Helper to log messages
+    const addLog = (msg) => {
+        console.log(`[Seeder] ${msg}`);
+        setLogs(prev => [...prev, `${new Date().toLocaleTimeString()}: ${msg}`]);
+    };
+
     useEffect(() => {
         const seedDatabase = async () => {
+            console.log("Starting seedDatabase effect...");
+            if (!db) {
+                console.error("Firebase DB is undefined!");
+                addLog("Error: Firebase DB not initialized.");
+                setStatus('error');
+                return;
+            }
+
             setStatus('loading');
             addLog("Starting database update...");
 
             try {
                 // 1. Seed Lawyers
                 const lawyerCollection = collection(db, "lawyers");
+
                 for (const lawyer of lawyersData) {
                     addLog(`Processing ${lawyer.name}...`);
 
-                    // Convert image to Base64
                     let imageBase64 = lawyer.image;
-                    if (lawyer.image && lawyer.image.startsWith('/')) { // Check if it's a path (approximate check)
+
+                    // If it's a local path (img src), fetch and convert
+                    if (lawyer.image && !lawyer.image.startsWith('data:')) {
+                        addLog(`   Converting image to Base64...`);
+                        // Note: In production, relative paths might need to be resolved against window.location.origin
+                        // but usually fetch('/assets/...') works fine.
                         const converted = await toBase64(lawyer.image);
-                        if (converted) imageBase64 = converted;
+                        if (converted) {
+                            imageBase64 = converted;
+                            addLog(`   Conversion success.`);
+                        } else {
+                            addLog(`   Conversion failed. Using original path.`);
+                        }
                     }
 
                     const lawyerData = { ...lawyer, image: imageBase64 };
 
-                    const q = query(lawyerCollection, where("name", "==", lawyer.name));
+                    // Check if exists
+                    const q = query(lawyerCollection, where("id", "==", lawyer.id));
                     const querySnapshot = await getDocs(q);
 
                     if (!querySnapshot.empty) {
-                        await updateDoc(querySnapshot.docs[0].ref, lawyerData);
-                        addLog(`Updated Lawyer: ${lawyer.name}`);
+                        // Update existing doc
+                        const docRef = querySnapshot.docs[0].ref;
+                        await updateDoc(docRef, lawyerData);
+                        addLog(`   Updated Lawyer: ${lawyer.name}`);
                     } else {
+                        // Create new doc
                         await addDoc(lawyerCollection, lawyerData);
-                        addLog(`Added Lawyer: ${lawyer.name}`);
+                        addLog(`   Added Lawyer: ${lawyer.name}`);
                     }
                 }
 
@@ -87,20 +114,17 @@ const SeedDatabase = () => {
                 }
 
                 setStatus('success');
-                addLog("Database sync completed!");
+                addLog("Database sync completed successfully!");
+
             } catch (error) {
                 console.error("Seeding error:", error);
                 setStatus('error');
-                addLog(`Error: ${error.message}`);
+                addLog(`CRITICAL ERROR: ${error.message}`);
             }
         };
 
         seedDatabase();
     }, []);
-
-    const addLog = (msg) => {
-        setLogs(prev => [...prev, `${new Date().toLocaleTimeString()}: ${msg}`]);
-    };
 
     return (
         <div className="min-h-screen bg-cream p-8 flex flex-col items-center justify-center">
