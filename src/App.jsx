@@ -12,7 +12,6 @@ import ConsultationBooking from './pages/ConsultationBooking';
 import TrademarkIP from './pages/TrademarkIP';
 
 import ServicePage from './pages/ServicePage';
-import SeedDatabase from './pages/SeedDatabase';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -58,7 +57,6 @@ function App() {
                             <Route path="/consumer/:id" element={<ServicePage />} />
                             <Route path="/doc/:id" element={<ServicePage />} />
                             <Route path="/ip/:id" element={<ServicePage />} />
-                            <Route path="/seed" element={<SeedDatabase />} />
                             <Route path="/trademark-ip" element={<TrademarkIP />} />
                         </Route>
 
