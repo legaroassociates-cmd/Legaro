@@ -221,7 +221,7 @@ const ConsultationBooking = () => {
         return days;
     };
 
-    const timeSlots = ['Forenoon', 'Afternoon', 'Evening'];
+    const timeSlots = ['Morning', 'Afternoon', 'Evening'];
 
     const validateStep = (step) => {
         const newErrors = {};

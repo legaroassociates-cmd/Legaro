@@ -1,10 +1,17 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Target, Eye, Shield, Award, Users, ArrowRight, Gavel, CheckCircle, ShieldCheck } from 'lucide-react';
 
 const LawyerCard = ({ lawyer }) => {
     const [isExpanded, setIsExpanded] = useState(false);
+    const navigate = useNavigate();
+
+    const handleBookNow = () => {
+        // Convert name to URL-friendly string format if needed, 
+        // essentially passing it to the booking page
+        navigate(`/book-consultation?lawyer=${encodeURIComponent(lawyer.name)}`);
+    };
 
     return (
         <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-gray-100 transition-all hover:scale-[1.02] duration-300 flex flex-col md:flex-row group h-full">
@@ -42,14 +49,20 @@ const LawyerCard = ({ lawyer }) => {
                 </div>
 
                 <div className="mt-auto">
-                    <p className="text-xs font-bold text-gray-400 uppercase mb-2">Key Areas</p>
-                    <div className="flex flex-wrap gap-2">
-                        {lawyer.specialization.map((spec, idx) => (
-                            <span key={idx} className="bg-gray-100 text-navy text-xs px-2 py-1 rounded">
+                    <div className="flex flex-wrap gap-2 mb-4">
+                        {lawyer.specialization.slice(0, 3).map((spec, idx) => (
+                            <span key={idx} className="bg-gray-100 text-navy text-[10px] px-2 py-1 rounded">
                                 {spec}
                             </span>
                         ))}
                     </div>
+
+                    <button
+                        onClick={handleBookNow}
+                        className="w-full bg-navy text-white py-2.5 rounded-lg text-sm font-bold hover:bg-gold hover:text-navy transition-all duration-300 flex items-center justify-center gap-2 group-hover:shadow-md"
+                    >
+                        Book Appointment <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                    </button>
                 </div>
             </div>
         </div>
@@ -200,7 +213,7 @@ const AboutUs = () => {
                             <p className="text-gray-300 mb-8 text-lg">
                                 We combine the wisdom of experienced lawyers with the efficiency of modern technology.
                             </p>
-                            <Link to="/contact-us" className="inline-flex items-center gap-2 bg-gold text-navy font-bold px-8 py-3 rounded-full hover:bg-white transition-colors">
+                            <Link to="/contact" className="inline-flex items-center gap-2 bg-gold text-navy font-bold px-8 py-3 rounded-full hover:bg-white transition-colors">
                                 Talk to Us <ArrowRight size={20} />
                             </Link>
                         </div>

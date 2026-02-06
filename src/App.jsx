@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
 import AboutUs from './pages/AboutUs';
@@ -16,41 +17,58 @@ import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicLayout from './layouts/PublicLayout';
+import LoadingScreen from './components/LoadingScreen';
 
 function App() {
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // Simulate loading time or wait for assets
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 1000); // 1.0 second splash screen
+
+        return () => clearTimeout(timer);
+    }, []);
+
     return (
-        <Router>
-            <Routes>
-                {/* Public Routes with Navbar & Footer */}
-                <Route element={<PublicLayout />}>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/about" element={<AboutUs />} />
-                    <Route path="/services" element={<LawyerServices />} />
-                    <Route path="/documentation" element={<DocumentationServices />} />
-                    <Route path="/tax-compliance" element={<TaxCompliance />} />
-                    <Route path="/business-registration" element={<BusinessRegistration />} />
-                    <Route path="/contact" element={<ContactUs />} />
-                    <Route path="/partner" element={<Partner />} />
-                    <Route path="/book-consultation" element={<ConsultationBooking />} />
+        <>
+            {isLoading && <LoadingScreen />}
+            <div className={`transition-opacity duration-700 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
+                <Router>
+                    <Routes>
+                        {/* Public Routes with Navbar & Footer */}
+                        <Route element={<PublicLayout />}>
+                            <Route path="/" element={<Home />} />
+                            <Route path="/about" element={<AboutUs />} />
+                            <Route path="/services" element={<LawyerServices />} />
+                            <Route path="/documentation" element={<DocumentationServices />} />
+                            <Route path="/tax-compliance" element={<TaxCompliance />} />
+                            <Route path="/business-registration" element={<BusinessRegistration />} />
+                            <Route path="/contact" element={<ContactUs />} />
+                            <Route path="/partner" element={<Partner />} />
+                            <Route path="/book-consultation" element={<ConsultationBooking />} />
 
-                    {/* Dynamic Service Routes */}
-                    <Route path="/service/:id" element={<ServicePage />} />
-                    <Route path="/lawyers/:id" element={<ServicePage />} />
-                    <Route path="/notice/:id" element={<ServicePage />} />
-                    <Route path="/litigation/:id" element={<ServicePage />} />
-                    <Route path="/expert/:id" element={<ServicePage />} />
-                    <Route path="/consumer/:id" element={<ServicePage />} />
-                    <Route path="/doc/:id" element={<ServicePage />} />
-                    <Route path="/ip/:id" element={<ServicePage />} />
-                    <Route path="/seed" element={<SeedDatabase />} />
-                    <Route path="/trademark-ip" element={<TrademarkIP />} />
-                </Route>
+                            {/* Dynamic Service Routes */}
+                            <Route path="/service/:id" element={<ServicePage />} />
+                            <Route path="/lawyers/:id" element={<ServicePage />} />
+                            <Route path="/notice/:id" element={<ServicePage />} />
+                            <Route path="/litigation/:id" element={<ServicePage />} />
+                            <Route path="/expert/:id" element={<ServicePage />} />
+                            <Route path="/consumer/:id" element={<ServicePage />} />
+                            <Route path="/doc/:id" element={<ServicePage />} />
+                            <Route path="/ip/:id" element={<ServicePage />} />
+                            <Route path="/seed" element={<SeedDatabase />} />
+                            <Route path="/trademark-ip" element={<TrademarkIP />} />
+                        </Route>
 
-                {/* Admin Routes (Standalone) */}
-                <Route path="/admin/login" element={<AdminLogin />} />
-                <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-            </Routes>
-        </Router>
+                        {/* Admin Routes (Standalone) */}
+                        <Route path="/admin/login" element={<AdminLogin />} />
+                        <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+                    </Routes>
+                </Router>
+            </div>
+        </>
     );
 }
 
