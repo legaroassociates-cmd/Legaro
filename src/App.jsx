@@ -25,7 +25,7 @@ function App() {
         // Simulate loading time or wait for assets
         const timer = setTimeout(() => {
             setIsLoading(false);
-        }, 1000); // 1.0 second splash screen
+        }, 800); // 1.0 second splash screen
 
         return () => clearTimeout(timer);
     }, []);

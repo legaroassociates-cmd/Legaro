@@ -271,7 +271,8 @@ const ConsultationBooking = () => {
                 ...formData,
                 bookingId: bookingId,
                 createdAt: serverTimestamp(),
-                status: 'paid',
+                status: 'upcoming', // Set to 'upcoming' so it appears in the dashboard
+                paymentStatus: 'paid',
                 amount: 299,
                 paymentId: 'PAY_' + Date.now()
             });

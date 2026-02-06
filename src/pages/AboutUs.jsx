@@ -84,7 +84,9 @@ const AboutUs = () => {
                     id: doc.id,
                     ...doc.data()
                 }));
-                // Optional: Sort by experience or specific order if needed
+                // Sort by priority (Descending)
+                fetchedLawyers.sort((a, b) => (b.priority || 0) - (a.priority || 0));
+
                 setLawyers(fetchedLawyers);
             } catch (error) {
                 console.error("Error fetching lawyers:", error);
