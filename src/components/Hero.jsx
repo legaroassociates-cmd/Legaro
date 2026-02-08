@@ -13,7 +13,7 @@ const Hero = () => {
             <img
                 src="/assets/hero-image.jpeg"
                 alt="Hero Background"
-                className="w-full h-auto block"
+                className="w-full h-[80vh] md:h-auto object-cover object-[75%_50%] block"
             />
 
             {/* 
@@ -28,13 +28,17 @@ const Hero = () => {
                     {/* Content Container - Matching previous alignment */}
                     <div className="md:w-[80%] lg:w-[70%]">
 
-                        <h1 className="text-2xl md:text-5xl lg:text-[3.5rem] font-serif mb-2 md:mb-6 leading-[1.1] tracking-wide text-white drop-shadow-lg whitespace-nowrap">
-                            Connect with Top <span className="text-[#E5C585]">Lawyers in Tamil Nadu</span>
-                        </h1>
 
-                        <h2 className="text-sm md:text-2xl font-light mb-4 md:mb-8 text-white tracking-wide drop-shadow-md">
-                            Book a 30-Minute Legal Consultation Online
+                        <h1 className="text-4xl md:text-5xl lg:text-[4rem] font-serif mb-2 md:mb-6 leading-[1.1] tracking-wide text-white drop-shadow-lg md:whitespace-nowrap">
+                            <span className="text-[#E5C585]">Your Trusted Partners</span> For All Legal Matters
+                        </h1>
+                        <h2 className="text-2xl md:text-5xl lg:text-[3rem] font-serif mb-2 md:mb-6 leading-[1.1] tracking-wide text-white drop-shadow-lg md:whitespace-nowrap">
+                            Connect with Top <span className="text-[#E5C585]">Lawyers in Tamil Nadu</span>
                         </h2>
+
+                        <h3 className="text-sm md:text-2xl font-light mb-4 md:mb-8 text-white tracking-wide drop-shadow-md">
+                            Book a 30-Minute Legal Consultation Online
+                        </h3>
 
                         <div className="hidden md:flex flex-col gap-2 md:gap-4 mb-4 md:mb-10 pl-1">
                             <div className="flex items-start gap-3">
