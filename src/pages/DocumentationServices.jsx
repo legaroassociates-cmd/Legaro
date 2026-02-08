@@ -3,8 +3,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { serviceDetails } from '../data/serviceDetails';
 import { ChevronRight, FileText } from 'lucide-react';
+import useDocumentTitle from '../hooks/useDocumentTitle';
 
 const DocumentationServices = () => {
+    useDocumentTitle('Documentation Services - Legaro');
     const [searchQuery, setSearchQuery] = React.useState('');
     const [activeCategory, setActiveCategory] = React.useState('All');
 
@@ -83,8 +85,8 @@ const DocumentationServices = () => {
                                 setSearchQuery('');
                             }}
                             className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${activeCategory === cat
-                                    ? 'bg-navy text-gold shadow-md transform scale-105'
-                                    : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                                ? 'bg-navy text-gold shadow-md transform scale-105'
+                                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
                                 }`}
                         >
                             {cat}

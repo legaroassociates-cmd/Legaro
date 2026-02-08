@@ -3,8 +3,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { serviceDetails } from '../data/serviceDetails';
 import { ChevronRight, Award, Monitor, FileText, Star, Eye, Clock, FileSignature, Globe, CheckCircle, AlertTriangle, Gavel, Shield, Target, UserCheck } from 'lucide-react';
+import useDocumentTitle from '../hooks/useDocumentTitle';
 
 const TrademarkIP = () => {
+    useDocumentTitle('Trademark & IP Services - Legaro');
     const [searchQuery, setSearchQuery] = React.useState('');
     const [activeCategory, setActiveCategory] = React.useState('All');
 
@@ -87,8 +89,8 @@ const TrademarkIP = () => {
                                 setSearchQuery('');
                             }}
                             className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${activeCategory === cat
-                                    ? 'bg-navy text-gold shadow-md transform scale-105'
-                                    : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                                ? 'bg-navy text-gold shadow-md transform scale-105'
+                                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
                                 }`}
                         >
                             {cat}

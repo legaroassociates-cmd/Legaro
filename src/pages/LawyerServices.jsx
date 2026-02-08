@@ -3,8 +3,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { serviceDetails } from '../data/serviceDetails';
 import { ChevronRight } from 'lucide-react';
+import useDocumentTitle from '../hooks/useDocumentTitle';
 
 const LawyerServices = () => {
+    useDocumentTitle('Legal Services & Consultation - Legaro');
     const [searchQuery, setSearchQuery] = React.useState('');
     const [activeCategory, setActiveCategory] = React.useState('All');
 
@@ -90,8 +92,8 @@ const LawyerServices = () => {
                                 setSearchQuery(''); // Clear search on category switch for clarity? Or keep? Keeping clear is often safer UX.
                             }}
                             className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${activeCategory === cat
-                                    ? 'bg-navy text-gold shadow-md transform scale-105'
-                                    : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                                ? 'bg-navy text-gold shadow-md transform scale-105'
+                                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
                                 }`}
                         >
                             {cat}

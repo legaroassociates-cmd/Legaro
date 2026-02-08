@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Clock, Send, MessageSquare, CheckCircle } from 'lucide-react';
 import { db } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import useDocumentTitle from '../hooks/useDocumentTitle';
 
 const ContactUs = () => {
+    useDocumentTitle('Contact Us - Legaro');
     const [formData, setFormData] = useState({
         name: '',
         email: '',

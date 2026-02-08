@@ -7,8 +7,10 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { db } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { cities } from '../data/cities'; // Restore import
+import useDocumentTitle from '../hooks/useDocumentTitle';
 
 const ConsultationBooking = () => {
+    useDocumentTitle('Book a Legal Consultation - Legaro');
     const navigate = useNavigate();
     const location = useLocation();
     const [currentStep, setCurrentStep] = useState(1);

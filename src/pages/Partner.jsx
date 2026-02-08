@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { CheckCircle, Users, TrendingUp, ShieldCheck } from 'lucide-react';
 import { db } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import useDocumentTitle from '../hooks/useDocumentTitle';
 
 const Partner = () => {
+    useDocumentTitle('Partner with Us - Legaro');
     const [formData, setFormData] = useState({
         fullName: '',
         licenseNo: '',

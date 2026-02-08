@@ -261,12 +261,12 @@ const Navbar = () => {
             </div>
 
             {/* Desktop Menu */}
-            <div className="hidden lg:flex items-center gap-4 xl:gap-8">
+            <ul className="hidden lg:flex items-center gap-4 xl:gap-8 list-none m-0 p-0">
                 {navLinks.map((item) => {
                     const menuConfig = megaMenuConfig[item.name];
 
                     return (
-                        <div
+                        <li
                             key={item.name}
                             className="relative group"
                             onMouseEnter={() => menuConfig && setActiveTab(menuConfig.defaultTab)}
@@ -318,17 +318,19 @@ const Navbar = () => {
                                     </div>
                                 </div>
                             )}
-                        </div>
+                        </li>
                     );
                 })}
 
                 {/* Partner Button */}
-                <Link to="/partner">
-                    <button className="bg-gradient-to-r from-navy to-[#2a344a] text-white font-semibold py-2 px-5 rounded-full shadow hover:opacity-90 transition-opacity text-sm whitespace-nowrap border border-navy/20 hover:shadow-md">
-                        Are you a Lawyer? Partner with us
-                    </button>
-                </Link>
-            </div>
+                <li>
+                    <Link to="/partner">
+                        <button className="bg-gradient-to-r from-navy to-[#2a344a] text-white font-semibold py-2 px-5 rounded-full shadow hover:opacity-90 transition-opacity text-sm whitespace-nowrap border border-navy/20 hover:shadow-md">
+                            Are you a Lawyer? Partner with us
+                        </button>
+                    </Link>
+                </li>
+            </ul>
 
             {/* Mobile Menu Toggle */}
             <div className="lg:hidden">

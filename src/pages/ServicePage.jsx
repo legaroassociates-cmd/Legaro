@@ -8,10 +8,14 @@ import { serviceDetails, defaultService } from '../data/serviceDetails';
 import { cities } from '../data/cities';
 import { db } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import useDocumentTitle from '../hooks/useDocumentTitle';
 
 const ServicePage = () => {
     const { id } = useParams();
     const [service, setService] = useState(defaultService);
+
+    // Dynamic Title
+    useDocumentTitle(`${service.title} - Legaro`);
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         name: '',

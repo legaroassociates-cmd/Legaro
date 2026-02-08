@@ -4,8 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { db } from '../../firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { Lock, User } from 'lucide-react';
+import useDocumentTitle from '../../hooks/useDocumentTitle';
 
 const AdminLogin = () => {
+    useDocumentTitle('Admin Login - Legaro');
     const [adminId, setAdminId] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');

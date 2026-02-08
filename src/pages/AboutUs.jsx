@@ -71,8 +71,10 @@ const LawyerCard = ({ lawyer }) => {
 
 import { db } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
+import useDocumentTitle from '../hooks/useDocumentTitle';
 
 const AboutUs = () => {
+    useDocumentTitle('About Us - Legaro');
     const [lawyers, setLawyers] = useState([]);
     const [loading, setLoading] = useState(true);
 
