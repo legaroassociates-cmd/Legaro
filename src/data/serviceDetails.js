@@ -3,7 +3,7 @@ import {
     Scale, FileText, Users, Gavel, Shield, FileSignature,
     AlertTriangle, Home, Globe, MessageSquare, Building2,
     ShoppingBag, Monitor, HeartHandshake, BookOpen, FileCheck,
-    Award, Target, CheckCircle, Clock, Star, Eye, Check
+    Award, Target, CheckCircle, Clock, Star, Eye, Check, Handshake, Search, User
 } from 'lucide-react';
 
 export const serviceDetails = {
@@ -555,7 +555,314 @@ export const serviceDetails = {
         icon: Award,
         category: "Infringement & Design",
         bookingCategory: "Trademark Lawyer"
-    }
+    },
+
+    // BUSINESS REGISTRATION SERVICES
+    // Company Registration
+    'pvt-ltd': {
+        title: "Private Limited Company",
+        description: "The most popular legal structure for businesses in India. limited liability, separate legal entity, and ease of raising funds.",
+        features: ["Name Approval", "DSC & DIN", "MoA & AoA", "Certificate of Incorporation"],
+        icon: Building2,
+        category: "Company Registration",
+        bookingCategory: "Company Law Matters"
+    },
+    'llp': {
+        title: "Limited Liability Partnership (LLP)",
+        description: "A hybrid structure combining the benefits of a partnership with limited liability. Ideal for professional firms.",
+        features: ["LLP Agreement", "DPIN for Partners", "Name Reservation", "Incorporation Certificate"],
+        icon: Users,
+        category: "Company Registration",
+        bookingCategory: "Company Law Matters"
+    },
+    'opc': {
+        title: "One Person Company (OPC)",
+        description: "A perfect structure for solo entrepreneurs who want limited liability and corporate status.",
+        features: ["Single Shareholder", "Nominee Appointment", "Director Identification", "Legal Entity Status"],
+        icon: Users,
+        category: "Company Registration",
+        bookingCategory: "Company Law Matters"
+    },
+    'proprietorship': {
+        title: "Sole Proprietorship",
+        description: "The simplest form of business entity. Easy to start, with minimal compliance requirements.",
+        features: ["GST Registration", "MSME/Udyam", "Shop & Establishment", "Business Bank Account"],
+        icon: Users,
+        category: "Company Registration",
+        bookingCategory: "Company Law Matters"
+    },
+    'nidhi': {
+        title: "Nidhi Company",
+        description: "A non-banking financial company formulation for borrowing and lending money between members.",
+        features: ["NDH-4 Filing", "Minimum 7 Members", "Savings & Loan Rules", "Compliance Management"],
+        icon: Building2,
+        category: "Company Registration",
+        bookingCategory: "Company Law Matters"
+    },
+    'producer': {
+        title: "Producer Company",
+        description: "For farmers and agricultural producers to organize as a corporate entity.",
+        features: ["Farmer Members", "Agricultural Activities", "Limited Liability", "Profit Sharing"],
+        icon: Users,
+        category: "Company Registration",
+        bookingCategory: "Company Law Matters"
+    },
+    'partnership': {
+        title: "Partnership Firm",
+        description: "Register a traditional partnership firm with a formal deed.",
+        features: ["Partnership Deed", "Firm Registration", "PAN Card", "Legal Status"],
+        icon: Handshake,
+        category: "Company Registration",
+        bookingCategory: "Company Law Matters"
+    },
+    'startup-india': {
+        title: "Startup India Registration",
+        description: "Get recognized by DPIIT to avail tax benefits, easier compliance, and IPR fast-tracking.",
+        features: ["DPIIT Recognition", "Tax Exemption", "Self-Certification", "Govt Tenders"],
+        icon: Award,
+        category: "Company Registration",
+        bookingCategory: "Company Law Matters"
+    },
+
+    // International Business
+    'us-inc': {
+        title: "US Incorporation",
+        description: "Expand globally by registering your company in the USA (Delaware/Wyoming).",
+        features: ["C-Corp / LLC", "EIN (Tax ID)", "US Bank Account", "Registered Agent"],
+        icon: Globe,
+        category: "International Business",
+        bookingCategory: "Company Law Matters"
+    },
+    'singapore-inc': {
+        title: "Singapore Incorporation",
+        description: "Set up your business in Asia's financial hub with low taxes and global connectivity.",
+        features: ["ACRA Registration", "Corporate Secretary", "Local Address", "BizFile Profile"],
+        icon: Globe,
+        category: "International Business",
+        bookingCategory: "Company Law Matters"
+    },
+    'uk-inc': {
+        title: "UK Incorporation",
+        description: "Register a Private Limited Company (Ltd) in the United Kingdom.",
+        features: ["Companies House Reg", "Registered Office", "Share Certificates", "Corporation Tax"],
+        icon: Globe,
+        category: "International Business",
+        bookingCategory: "Company Law Matters"
+    },
+    'netherlands-inc': {
+        title: "Netherlands Incorporation",
+        description: "Establish a Dutch BV for European market access and tax efficiency.",
+        features: ["Notarial Deed", "Chamber of Commerce", "VAT Number", "Legal Address"],
+        icon: Globe,
+        category: "International Business",
+        bookingCategory: "Company Law Matters"
+    },
+    'hk-inc': {
+        title: "Hong Kong Company",
+        description: "Gateway to China and Asia. Incorporation services for Hong Kong.",
+        features: ["Company Registry", "Business Cert", "Company Secretary", "Significant Controllers"],
+        icon: Globe,
+        category: "International Business",
+        bookingCategory: "Company Law Matters"
+    },
+    'dubai-inc': {
+        title: "Dubai Company Incorporation",
+        description: "Start a business in UAE Free Zones or Mainland.",
+        features: ["Trade License", "Visa Assistance", "Office Setup", "Local Sponsor"],
+        icon: Globe,
+        category: "International Business",
+        bookingCategory: "Company Law Matters"
+    },
+    'int-trademark': {
+        title: "International Trademark",
+        description: "Protect your brand globally via the Madrid Protocol or direct national filing.",
+        features: ["WIPO Application", "Country Designation", "Global Protection", "Priority Claim"],
+        icon: Award,
+        category: "International Business",
+        bookingCategory: "Trademark Lawyer"
+    },
+
+    // Name Search
+    'name-search': {
+        title: "Company Name Search",
+        description: "Check availability of your desired company name across MCA database.",
+        features: ["Name Availability", "Trademark Conflict", "Domain Check", "Reservation (RUN)"],
+        icon: Search,
+        category: "Company Name Search",
+        bookingCategory: "Company Law Matters"
+    },
+    'change-name': {
+        title: "Change Company Name",
+        description: "Legal process to change the name of an existing Pvt Ltd or LLP.",
+        features: ["Board Resolution", "MGT-14 Filing", "Central Govt Approval", "New Certificate"],
+        icon: FileSignature,
+        category: "Company Name Search",
+        bookingCategory: "Company Law Matters"
+    },
+    'name-generator': {
+        title: "Business Name Generator",
+        description: "Creative assistance to find a unique and legally compliant business name.",
+        features: ["Brandable Names", "Legal Check", "Domain Availability", "Availability Report"],
+        icon: Star,
+        category: "Company Name Search",
+        bookingCategory: "Company Law Matters"
+    },
+
+    // Licenses
+    'dsc': {
+        title: "Digital Signature (DSC)",
+        description: "Class 3 DSC for e-tendering, MCA filing, and Income Tax.",
+        features: ["Class 3 Signing", "Encryption", "USB Token", "2-Year Validity"],
+        icon: FileCheck,
+        category: "Licenses",
+        bookingCategory: "Company Law Matters"
+    },
+    'udyam': {
+        title: "Udyam Registration",
+        description: "Official MSME registration for small businesses to avail govt schemes.",
+        features: ["Lifetime Validity", "Priority Lending", "Subsidies", "Free Registration"],
+        icon: FileText,
+        category: "Licenses",
+        bookingCategory: "Company Law Matters"
+    },
+    'msme': {
+        title: "MSME Registration",
+        description: "Register as a Micro, Small, or Medium Enterprise.",
+        features: ["Udyam Certificate", "Interest Subsidy", "Collateral Free Loans", "ISO Support"],
+        icon: Building2,
+        category: "Licenses",
+        bookingCategory: "Company Law Matters"
+    },
+    'iso': {
+        title: "ISO Certification",
+        description: "Get ISO 9001 and other certifications to prove quality and standards.",
+        features: ["Audit Support", "Documentation", "Certification", "Process Improvement"],
+        icon: Award,
+        category: "Licenses",
+        bookingCategory: "Company Law Matters"
+    },
+    'fssai': {
+        title: "FSSAI Food License",
+        description: "Mandatory license for any food business operator in India.",
+        features: ["Basic Registration", "State License", "Central License", "Health Guidelines"],
+        icon: CheckCircle,
+        category: "Licenses",
+        bookingCategory: "Company Law Matters"
+    },
+    'iec': {
+        title: "Import Export Code (IEC)",
+        description: "Essential code for businesses involved in import and export.",
+        features: ["DGFT Registration", "Lifetime Validity", "No Renewal", "Customs Requirement"],
+        icon: Globe,
+        category: "Licenses",
+        bookingCategory: "Company Law Matters"
+    },
+    'apeda': {
+        title: "APEDA Registration (RCMC)",
+        description: "Export agricultural products with APEDA membership.",
+        features: ["RCMC Issuance", "Export Subsidy", "Market Access", "Member Benefits"],
+        icon: FileText,
+        category: "Licenses",
+        bookingCategory: "Company Law Matters"
+    },
+    'spice-board': {
+        title: "Spice Board Registration",
+        description: "Certificate of Registration as Exporter of Spices (CRES).",
+        features: ["CRES Certificate", "Export Permit", "Sample Testing", "Auction Participation"],
+        icon: FileText,
+        category: "Licenses",
+        bookingCategory: "Company Law Matters"
+    },
+    'fieo': {
+        title: "FIEO Registration",
+        description: "Federation of Indian Export Organisations membership.",
+        features: ["RCMC", "Export Promotion", "Global Exposure", "Govt Incentives"],
+        icon: Globe,
+        category: "Licenses",
+        bookingCategory: "Company Law Matters"
+    },
+    'legal-metrology': {
+        title: "Legal Metrology (LMPC)",
+        description: "Registration for importers/packers of pre-packaged commodities.",
+        features: ["Importer Reg", "Packer Reg", "Model Approval", "Weight Verification"],
+        icon: Scale,
+        category: "Licenses",
+        bookingCategory: "Company Law Matters"
+    },
+    'hallmark': {
+        title: "BIS Hallmark Registration",
+        description: "Mandatory for jewelers selling gold and silver artifacts.",
+        features: ["Jeweler Registration", "Assaying Center", "Quality Cert", "Compliance"],
+        icon: Award,
+        category: "Licenses",
+        bookingCategory: "Company Law Matters"
+    },
+    'bis': {
+        title: "BIS Registration (ISI)",
+        description: "Bureau of Indian Standards certification for product quality.",
+        features: ["Product Testing", "Factory Audit", "ISI Mark", "FMCS"],
+        icon: Shield,
+        category: "Licenses",
+        bookingCategory: "Company Law Matters"
+    },
+    'liquor': {
+        title: "Liquor License",
+        description: "State-specific license for selling or serving alcohol.",
+        features: ["L-1 to L-10", "Bar License", "Retail Shop", "Excise Compliance"],
+        icon: Award,
+        category: "Licenses",
+        bookingCategory: "Company Law Matters"
+    },
+    'clra': {
+        title: "CLRA Registration",
+        description: "Contract Labour (Regulation and Abolition) Act registration.",
+        features: ["Principal Employer", "Contractor License", "Labour Compliance", "Statutory Registers"],
+        icon: Users,
+        category: "Licenses",
+        bookingCategory: "Labour Lawyer"
+    },
+    'ad-code': {
+        title: "AD Code Registration",
+        description: "Authorized Dealer Code registration with Customs for exports.",
+        features: ["Bank Letter", "Icegate Reg", "Port Registration", "Export Benefit"],
+        icon: FileCheck,
+        category: "Licenses",
+        bookingCategory: "Company Law Matters"
+    },
+    'irdai': {
+        title: "IRDAI Registration",
+        description: "Registration for insurance agents, brokers, or web aggregators.",
+        features: ["License Application", "Broker Reg", "Corporate Agent", "Compliance"],
+        icon: Shield,
+        category: "Licenses",
+        bookingCategory: "Company Law Matters"
+    },
+    'drug-license': {
+        title: "Drug & Cosmetic License",
+        description: "Wholesale or retail drug license for pharmacy business.",
+        features: ["Form 20/21", "Pharmacist Reg", "Premises Inspection", "Renewal"],
+        icon: FileText,
+        category: "Licenses",
+        bookingCategory: "Company Law Matters"
+    },
+    'customs': {
+        title: "Customs Clearance",
+        description: "Legal support for customs disputes and clearance procedures.",
+        features: ["CHA Support", "Duty Calculation", "Dispute Resolution", "Notice Reply"],
+        icon: Globe,
+        category: "Licenses",
+        bookingCategory: "Company Law Matters"
+    },
+
+    // Web Development
+    'web-dev': {
+        title: "Web & E-Commerce Development",
+        description: "Professional website and e-commerce store development for your business.",
+        features: ["Business Website", "E-Commerce Store", "Payment Gateway", "SEO Optimization"],
+        icon: Monitor,
+        category: "Web Development",
+        bookingCategory: "Company Law Matters"
+    } // No comma here if it's the last item, but there is a }; closing the object
 };
 
 export const defaultService = {

@@ -70,6 +70,32 @@ const DetailModal = ({ selectedItem, onClose, onAccept, activeTab }) => {
                             Accept & Assign Counsel
                         </button>
                     )}
+
+                    {/* Partner Actions */}
+                    {activeTab === 'partners' && (
+                        <>
+                            {selectedItem.status === 'new' && onAccept && (
+                                <button
+                                    onClick={() => {
+                                        const date = prompt("Enter Interview Date & Time (e.g., 25th Oct, 4 PM):");
+                                        if (date) { onClose(); onAccept(selectedItem, date); }
+                                    }}
+                                    className="px-6 py-2 rounded-xl text-sm font-bold bg-navy text-white hover:bg-gold hover:text-navy transition-all shadow-md"
+                                >
+                                    Schedule Interview
+                                </button>
+                            )}
+                            {selectedItem.status === 'interview_scheduled' && onAccept && (
+                                <button
+                                    onClick={() => { onClose(); onAccept(selectedItem, 'hire'); }}
+                                    className="px-6 py-2 rounded-xl text-sm font-bold bg-green-600 text-white hover:bg-green-700 transition-all shadow-md"
+                                >
+                                    Hire & Send Onboarding Link
+                                </button>
+                            )}
+                        </>
+                    )}
+
                     <button onClick={onClose} className="px-6 py-2 rounded-xl text-sm font-bold border border-gray-200 hover:bg-gray-50 transition-colors">Close</button>
                 </div>
             </div>

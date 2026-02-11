@@ -9,10 +9,12 @@ import { cities } from '../data/cities';
 import { db } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import useDocumentTitle from '../hooks/useDocumentTitle';
+import { useNotification } from '../context/NotificationContext'; // NEW
 
 const ServicePage = () => {
     const { id } = useParams();
     const [service, setService] = useState(defaultService);
+    const { showNotification } = useNotification(); // NEW
 
     // Dynamic Title
     useDocumentTitle(`${service.title} - Legaro`);
@@ -83,14 +85,21 @@ const ServicePage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Validation
+        const phoneRegex = /^\d{10}$/;
+        if (!phoneRegex.test(formData.phone.replace(/\D/g, ''))) {
+            showNotification("Please enter a valid 10-digit mobile number.", 'error'); // NEW
+            return;
+        }
+
         setIsSubmitting(true);
 
-        // Redirect to Consultation Booking with pre-filled data
-        // Uses bookingCategory if available to match the Dropdown options in ConsultationBooking
-        navigate('/book-consultation', {
+        // Redirect to New Service Booking Page
+        navigate('/service-booking', {
             state: {
                 ...formData,
-                category: service.bookingCategory || 'Others', // Map to correct category
+                category: service.bookingCategory || 'Others',
                 serviceName: service.title
             }
         });
@@ -106,7 +115,7 @@ const ServicePage = () => {
             <div className="max-w-7xl mx-auto mb-8 flex items-center gap-2 text-sm text-gray-500">
                 <Link to="/" className="hover:text-navy transition-colors">Home</Link>
                 <ChevronRight size={14} />
-                <span className="text-gray-400">Services</span>
+                <Link to="/services" className="hover:text-navy transition-colors">Services</Link>
                 <ChevronRight size={14} />
                 <span className="text-gold font-semibold truncate">{service.title}</span>
             </div>
@@ -209,7 +218,7 @@ const ServicePage = () => {
                                     <input
                                         name="phone" value={formData.phone} onChange={handleChange} required
                                         type="tel"
-                                        placeholder="+91 98765 43210"
+                                        placeholder="xxxxxxxxxx"
                                         className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-200 focus:border-gold focus:ring-2 focus:ring-gold/20 outline-none transition-all"
                                     />
                                 </div>

@@ -3,13 +3,20 @@ import { Link, useLocation } from 'react-router-dom';
 import {
     Building2, FileText, Scale, Users, FileCheck, Shield,
     Home, BookOpen, UserCheck, HeartHandshake, Gavel, FileSignature,
-    Monitor, AlertTriangle, MessageSquare, Globe, ShoppingBag, ChevronRight, Award, Star
+    Monitor, AlertTriangle, MessageSquare, Globe, ShoppingBag, ChevronRight, Award, Star, Handshake, Search, User, CheckCircle
 } from 'lucide-react';
 
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [hoveredMenu, setHoveredMenu] = useState(null); // State for desktop menu hover
     const [activeTab, setActiveTab] = useState('property'); // Default to property
     const location = useLocation();
+
+    // Handler to close menu when a link is clicked
+    const handleLinkClick = () => {
+        setHoveredMenu(null);
+        setIsMenuOpen(false); // Also close mobile menu if open
+    };
 
     const navLinks = [
         { name: 'Home', path: '/' },
@@ -22,6 +29,11 @@ const Navbar = () => {
         {
             name: 'Documentation Services',
             path: '/documentation',
+            hasDropdown: true
+        },
+        {
+            name: 'Business Registration', // NEW
+            path: '/business-registration',
             hasDropdown: true
         },
         {
@@ -77,6 +89,82 @@ const Navbar = () => {
                     { name: 'Name Change', icon: UserCheck, path: '/doc/name-change' },
                     { name: 'Religion Change', icon: BookOpen, path: '/doc/religion-change' },
                     { name: 'Gender Change', icon: Users, path: '/doc/gender-change' },
+                ]
+            }
+        ]
+    };
+
+    // Data for Business Registration Mega Menu (NEW)
+    const businessServices = {
+        company: [
+            {
+                category: 'Company Registration',
+                items: [
+                    { name: 'Private Limited Company', icon: Building2, path: '/business/pvt-ltd' },
+                    { name: 'Limited Liability Partnership', icon: Users, path: '/business/llp' },
+                    { name: 'One Person Company', icon: User, path: '/business/opc' },
+                    { name: 'Sole Proprietorship', icon: User, path: '/business/proprietorship' },
+                    { name: 'Nidhi Company', icon: Building2, path: '/business/nidhi' },
+                    { name: 'Producer Company', icon: Users, path: '/business/producer' },
+                    { name: 'Partnership Firm', icon: Handshake, path: '/business/partnership' },
+                    { name: 'Startup India Registration', icon: Award, path: '/business/startup-india' },
+                ]
+            }
+        ],
+        international: [
+            {
+                category: 'International Business Setup',
+                items: [
+                    { name: 'US Incorporation', icon: Globe, path: '/business/us-inc' },
+                    { name: 'Singapore Incorporation', icon: Globe, path: '/business/singapore-inc' },
+                    { name: 'UK Incorporation', icon: Globe, path: '/business/uk-inc' },
+                    { name: 'Netherlands Incorporation', icon: Globe, path: '/business/netherlands-inc' },
+                    { name: 'Hong Kong Company', icon: Globe, path: '/business/hk-inc' },
+                    { name: 'Dubai Company', icon: Globe, path: '/business/dubai-inc' },
+                    { name: 'International Trademark', icon: Award, path: '/business/int-trademark' },
+                ]
+            }
+        ],
+        nameSearch: [
+            {
+                category: 'Company Name Search',
+                items: [
+                    { name: 'Company Name Search', icon: Search, path: '/business/name-search' },
+                    { name: 'Change Company Name', icon: FileSignature, path: '/business/change-name' },
+                    { name: 'Business Name Generator', icon: Star, path: '/business/name-generator' },
+                ]
+            }
+        ],
+        licenses: [
+            {
+                category: 'Licenses & Registrations',
+                items: [
+                    { name: 'Digital Signature Certificate', icon: FileCheck, path: '/business/dsc' },
+                    { name: 'Udyam Registration', icon: FileText, path: '/business/udyam' },
+                    { name: 'MSME Registration', icon: Building2, path: '/business/msme' },
+                    { name: 'ISO Certification', icon: Award, path: '/business/iso' },
+                    { name: 'FSSAI (Food License)', icon: CheckCircle, path: '/business/fssai' },
+                    { name: 'IEC (Import/Export Code)', icon: Globe, path: '/business/iec' },
+                    { name: 'Apeda RCMC', icon: FileText, path: '/business/apeda' },
+                    { name: 'Spice Board Registration', icon: FileText, path: '/business/spice-board' },
+                    { name: 'FIEO Registration', icon: Globe, path: '/business/fieo' },
+                    { name: 'Legal Metrology', icon: Scale, path: '/business/legal-metrology' },
+                    { name: 'Hallmark Registration', icon: Award, path: '/business/hallmark' },
+                    { name: 'BIS Registration', icon: Shield, path: '/business/bis' },
+                    { name: 'Liquor License', icon: Award, path: '/business/liquor' },
+                    { name: 'CLRA Registration', icon: Users, path: '/business/clra' },
+                    { name: 'AD Code Registration', icon: FileCheck, path: '/business/ad-code' },
+                    { name: 'IRDAI Registration', icon: Shield, path: '/business/irdai' },
+                    { name: 'Drug & Cosmetic License', icon: FileText, path: '/business/drug-license' },
+                    { name: 'Customs Clearance', icon: Globe, path: '/business/customs' },
+                ]
+            }
+        ],
+        web: [
+            {
+                category: 'Web Development',
+                items: [
+                    { name: 'Web/E-Commerce Dev', icon: Monitor, path: '/business/web-dev' },
                 ]
             }
         ]
@@ -225,6 +313,17 @@ const Navbar = () => {
             ],
             data: docServices
         },
+        'Business Registration': { // NEW
+            defaultTab: 'company',
+            tabs: [
+                { id: 'company', label: 'Company Registration' },
+                { id: 'international', label: 'International' },
+                { id: 'nameSearch', label: 'Name Search' },
+                { id: 'licenses', label: 'Licenses & Registrations' },
+                { id: 'web', label: 'Web Development' }
+            ],
+            data: businessServices
+        },
         'Lawyer Services': {
             defaultTab: 'specialization',
             tabs: [
@@ -264,25 +363,33 @@ const Navbar = () => {
             <ul className="hidden lg:flex items-center gap-4 xl:gap-8 list-none m-0 p-0">
                 {navLinks.map((item) => {
                     const menuConfig = megaMenuConfig[item.name];
+                    const isHovered = hoveredMenu === item.name;
 
                     return (
                         <li
                             key={item.name}
-                            className="relative group"
-                            onMouseEnter={() => menuConfig && setActiveTab(menuConfig.defaultTab)}
+                            className="relative group h-full py-4" // Added h-full py-4 to extend hover area
+                            onMouseEnter={() => {
+                                setHoveredMenu(item.name);
+                                if (menuConfig) setActiveTab(menuConfig.defaultTab);
+                            }}
+                            onMouseLeave={() => setHoveredMenu(null)}
                         >
                             <Link
                                 to={item.path}
-                                className={`block py-3 no-underline font-medium hover:text-navy hover:border-b-2 hover:border-gold transition-all duration-200 text-sm xl:text-base whitespace-nowrap ${location.pathname === item.path ? 'text-navy border-b-2 border-gold' : 'text-gray-700'}`}
+                                className={`block py-1 no-underline font-medium hover:text-navy hover:border-b-2 hover:border-gold transition-all duration-200 text-sm xl:text-base whitespace-nowrap ${location.pathname === item.path ? 'text-navy border-b-2 border-gold' : 'text-gray-700'}`}
+                                onClick={handleLinkClick}
                             >
                                 {item.name}
                             </Link>
 
                             {/* Mega Menu Dropdown */}
                             {item.hasDropdown && menuConfig && (
-                                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-0 w-[750px] bg-white rounded-lg shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top z-50 overflow-hidden">
-                                    {/* Tabs Header */}
-                                    <div className="flex border-b border-gray-100 bg-white overflow-x-auto">
+                                <div
+                                    className={`absolute top-full left-1/2 -translate-x-1/2 mt-0 w-[900px] bg-white rounded-lg shadow-xl border border-gray-100 transition-all duration-300 transform origin-top z-50 overflow-hidden ${isHovered ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'}`}
+                                >
+                                    {/* Tabs Header - No Scroll, Flex Fit */}
+                                    <div className="flex border-b border-gray-100 bg-white">
                                         {menuConfig.tabs.map((tab) => (
                                             <button
                                                 key={tab.id}
@@ -303,7 +410,12 @@ const Navbar = () => {
                                                         <h3 className="text-xs uppercase tracking-wider text-gold-dark font-bold mb-4 border-b border-gray-100 pb-2">{section.category}</h3>
                                                         <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-3">
                                                             {section.items.map((service, sIdx) => (
-                                                                <Link key={sIdx} to={service.path} className="flex items-center gap-3 p-2 -ml-2 rounded-md hover:bg-cream transition-colors group/item no-underline">
+                                                                <Link
+                                                                    key={sIdx}
+                                                                    to={service.path}
+                                                                    className="flex items-center gap-3 p-2 -ml-2 rounded-md hover:bg-cream transition-colors group/item no-underline"
+                                                                    onClick={handleLinkClick}
+                                                                >
                                                                     <div className="text-gray-400 group-hover/item:text-gold transition-colors">
                                                                         <service.icon size={16} />
                                                                     </div>

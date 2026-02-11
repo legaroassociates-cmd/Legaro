@@ -45,11 +45,16 @@ const ConsultationBooking = () => {
                     category: serviceName || '',
                     subCategory: ''
                 }));
+
+                // Auto-advance if we have all details
+                if (name && email && phone && city && serviceName) {
+                    setCurrentStep(3);
+                }
             } catch (err) {
                 console.error("Error parsing location state:", err);
             }
         }
-    }, []);
+    }, [location.state]);
 
     const handleCityChange = (e) => {
         const value = e.target.value;
@@ -338,8 +343,8 @@ const ConsultationBooking = () => {
                     </div>
                 </div>
 
-                <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-6">
-                    <div className="w-full lg:w-2/3 bg-white rounded-2xl shadow-xl p-6 md:p-8 min-h-[400px]">
+                <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8">
+                    <div className="w-full lg:flex-1 bg-white rounded-2xl shadow-xl p-6 md:p-8 min-h-[400px]">
                         {currentStep === 1 && (
                             <div className="space-y-6">
                                 <h2 className="text-xl font-serif text-navy flex items-center gap-2"><User size={24} className="text-gold" /> Personal Details</h2>
@@ -382,10 +387,11 @@ const ConsultationBooking = () => {
                                 {errors.category && <p className="text-red-500 text-xs">{errors.category}</p>}
 
                                 {formData.category && (
-                                    <div className="bg-gray-50 p-4 rounded-xl">
+                                    <div className="bg-gray-100 p-4 rounded-xl border border-gray-200 shadow-inner">
+                                        <h3 className="text-md font-bold text-navy mb-3 border-b border-gray-300 pb-2">{formData.category}</h3>
                                         <div className="flex flex-wrap gap-2">
                                             {legalIssuesData.find(i => i.label === formData.category)?.subIssues?.map((s, idx) => (
-                                                <button key={idx} onClick={() => setFormData({ ...formData, subCategory: s })} className={`px-3 py-2 rounded-lg border ${formData.subCategory === s ? 'bg-gold text-white' : 'bg-white'}`}>{s}</button>
+                                                <button key={idx} onClick={() => setFormData({ ...formData, subCategory: s })} className={`px-3 py-2 rounded-lg border text-sm font-medium transition-all ${formData.subCategory === s ? 'bg-navy text-white shadow-md transform scale-105' : 'bg-white text-gray-700 hover:bg-gray-50'}`}>{s}</button>
                                             ))}
                                         </div>
                                     </div>
@@ -422,10 +428,13 @@ const ConsultationBooking = () => {
                                 </div>
                                 {errors.date && <p className="text-red-500 text-xs">{errors.date}</p>}
 
-                                <div className="flex gap-3 flex-wrap">
-                                    {timeSlots.map(t => (
-                                        <button key={t} onClick={() => setFormData({ ...formData, timeSlot: t })} className={`px-4 py-2 border rounded-lg ${formData.timeSlot === t ? 'bg-gold text-white' : 'bg-white'} ${errors.timeSlot ? 'border-red-500' : ''}`}>{t}</button>
-                                    ))}
+                                <div className="mt-6">
+                                    <h3 className="text-md font-bold text-navy mb-3">Select Time Slot</h3>
+                                    <div className="flex gap-3 flex-wrap">
+                                        {timeSlots.map(t => (
+                                            <button key={t} onClick={() => setFormData({ ...formData, timeSlot: t })} className={`px-4 py-2 border rounded-lg ${formData.timeSlot === t ? 'bg-gold text-white' : 'bg-white'} ${errors.timeSlot ? 'border-red-500' : ''}`}>{t}</button>
+                                        ))}
+                                    </div>
                                 </div>
                                 {errors.timeSlot && <p className="text-red-500 text-xs">{errors.timeSlot}</p>}
                             </div>
@@ -516,14 +525,23 @@ const ConsultationBooking = () => {
                         <div className="flex justify-between mt-8 pt-6 border-t">
                             <button onClick={handlePrev} disabled={currentStep === 1} className="text-gray-500 disabled:opacity-50">Back</button>
                             {currentStep < 4 ?
-                                <button onClick={handleNext} className="bg-navy text-white px-6 py-3 rounded-lg">Next Step</button> :
-                                <button onClick={handlePayment} className="bg-gold text-white px-6 py-3 rounded-lg">Pay ₹299 & Book</button>
+                                <button onClick={handleNext} className="bg-navy text-white px-6 py-3 rounded-lg font-semibold hover:bg-navy-light transition-colors">Next Step</button> :
+                                <button
+                                    onClick={handlePayment}
+                                    disabled={!isVerified}
+                                    className={`px-6 py-3 rounded-lg font-bold transition-all shadow-md ${isVerified
+                                        ? 'bg-gold text-white hover:bg-yellow-600'
+                                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                        }`}
+                                >
+                                    Pay ₹299 & Book
+                                </button>
                             }
                         </div>
                     </div>
 
                     {/* RIGHT: Booking Summary Sticky Card */}
-                    <div className="w-full lg:w-1/3 flex-shrink-0">
+                    <div className="w-full lg:w-[400px] xl:w-[450px] flex-shrink-0">
                         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sticky top-24">
                             <h3 className="text-xl font-serif text-navy mb-4 border-b border-gray-100 pb-3">Booking Summary</h3>
 

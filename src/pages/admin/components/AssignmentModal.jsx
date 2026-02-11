@@ -27,6 +27,7 @@ const AssignmentModal = ({ isOpen, onClose, assignmentData, setAssignmentData, l
                             onChange={(e) => setAssignmentData({ ...assignmentData, lawyerId: e.target.value })}
                         >
                             <option value="">-- Choose Expert --</option>
+                            <option value="admin_lawyer">Admin Lawyer (Internal)</option>
                             {lawyers.map(l => (
                                 <option key={l.id} value={l.id}>{l.name} ({l.specialization?.[0] || 'General'})</option>
                             ))}

@@ -10,6 +10,9 @@ import BusinessRegistration from './pages/BusinessRegistration';
 import Partner from './pages/Partner';
 import ConsultationBooking from './pages/ConsultationBooking';
 import TrademarkIP from './pages/TrademarkIP';
+import PartnerOnboarding from './pages/PartnerOnboarding';
+import ServiceBooking from './pages/ServiceBooking'; // NEW
+import { NotificationProvider } from './context/NotificationContext'; // NEW
 
 import ServicePage from './pages/ServicePage';
 import AdminLogin from './pages/admin/AdminLogin';
@@ -34,37 +37,46 @@ function App() {
         <>
             {isLoading && <LoadingScreen />}
             <div className={`transition-opacity duration-700 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
-                <Router>
-                    <Routes>
-                        {/* Public Routes with Navbar & Footer */}
-                        <Route element={<PublicLayout />}>
-                            <Route path="/" element={<Home />} />
-                            <Route path="/about" element={<AboutUs />} />
-                            <Route path="/services" element={<LawyerServices />} />
-                            <Route path="/documentation" element={<DocumentationServices />} />
-                            <Route path="/tax-compliance" element={<TaxCompliance />} />
-                            <Route path="/business-registration" element={<BusinessRegistration />} />
-                            <Route path="/contact" element={<ContactUs />} />
-                            <Route path="/partner" element={<Partner />} />
-                            <Route path="/book-consultation" element={<ConsultationBooking />} />
+                <NotificationProvider>
+                    <Router>
+                        <Routes>
+                            {/* Public Routes with Navbar & Footer */}
+                            <Route element={<PublicLayout />}>
+                                <Route path="/" element={<Home />} />
+                                <Route path="/about" element={<AboutUs />} />
+                                <Route path="/services" element={<LawyerServices />} />
+                                <Route path="/documentation" element={<DocumentationServices />} />
+                                <Route path="/tax-compliance" element={<TaxCompliance />} />
+                                <Route path="/business-registration" element={<BusinessRegistration />} />
+                                <Route path="/contact" element={<ContactUs />} />
+                                <Route path="/partner" element={<Partner />} />
+                                <Route path="/partner" element={<Partner />} />
+                                <Route path="/book-consultation" element={<ConsultationBooking />} />
+                                <Route path="/service-booking" element={<ServiceBooking />} /> {/* NEW ROUTE */}
 
-                            {/* Dynamic Service Routes */}
-                            <Route path="/service/:id" element={<ServicePage />} />
-                            <Route path="/lawyers/:id" element={<ServicePage />} />
-                            <Route path="/notice/:id" element={<ServicePage />} />
-                            <Route path="/litigation/:id" element={<ServicePage />} />
-                            <Route path="/expert/:id" element={<ServicePage />} />
-                            <Route path="/consumer/:id" element={<ServicePage />} />
-                            <Route path="/doc/:id" element={<ServicePage />} />
-                            <Route path="/ip/:id" element={<ServicePage />} />
-                            <Route path="/trademark-ip" element={<TrademarkIP />} />
-                        </Route>
+                                {/* Dynamic Service Routes */}
+                                <Route path="/service/:id" element={<ServicePage />} />
+                                <Route path="/lawyers/:id" element={<ServicePage />} />
+                                <Route path="/notice/:id" element={<ServicePage />} />
+                                <Route path="/litigation/:id" element={<ServicePage />} />
+                                <Route path="/expert/:id" element={<ServicePage />} />
+                                <Route path="/consumer/:id" element={<ServicePage />} />
+                                <Route path="/doc/:id" element={<ServicePage />} />
+                                <Route path="/ip/:id" element={<ServicePage />} />
+                                <Route path="/ip/:id" element={<ServicePage />} />
+                                <Route path="/business/:id" element={<ServicePage />} />
+                                <Route path="/trademark-ip" element={<TrademarkIP />} />
+                            </Route>
 
-                        {/* Admin Routes (Standalone) */}
-                        <Route path="/admin/login" element={<AdminLogin />} />
-                        <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-                    </Routes>
-                </Router>
+                            {/* Onboarding Route */}
+                            <Route path="/partner-onboarding" element={<PartnerOnboarding />} />
+
+                            {/* Admin Routes (Standalone) */}
+                            <Route path="/admin/login" element={<AdminLogin />} />
+                            <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+                        </Routes>
+                    </Router>
+                </NotificationProvider>
             </div>
         </>
     );

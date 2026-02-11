@@ -58,36 +58,52 @@ const Partner = () => {
                 <div className="absolute top-0 right-0 w-64 h-64 bg-gold opacity-10 rounded-full blur-3xl translate-x-1/2 -translate-y-1/2"></div>
 
                 <div className="relative z-10">
-                    <h4 className="text-gold font-bold tracking-widest uppercase mb-4 text-sm">Contact Information</h4>
+                    <h4 className="text-gold font-bold tracking-widest uppercase mb-4 text-sm">Join the Elite Network</h4>
                     <h1 className="text-4xl lg:text-5xl font-serif mb-6 leading-tight">
-                        Our Office <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold to-[#F3E5AB]">Address</span>
+                        Grow Your <br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold to-[#F3E5AB]">Legal Practice</span>
                     </h1>
+                    <p className="text-gray-300 text-lg mb-8 leading-relaxed">
+                        Partner with Tamil Nadu's fastest-growing legal tech platform. We connect you with high-quality clients while you focus on what you do best—practicing law.
+                    </p>
 
-                    <div className="space-y-8 mt-8">
-                        {/* Address */}
+                    <div className="space-y-8 mt-4">
+                        {/* Benefit 1 */}
                         <div className="flex items-start gap-5">
                             <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-gold shrink-0 mt-1">
                                 <Users size={24} />
                             </div>
                             <div>
-                                <h3 className="font-serif text-2xl text-white mb-2">Legaro Associates</h3>
-                                <p className="text-gray-300 text-lg leading-relaxed">
-                                    109 Padikuppam Road, <br />
-                                    Anna Nagar West <br />
-                                    Chennai, Tamil Nadu - 600040
+                                <h3 className="font-serif text-xl text-white mb-2">High-Volume Clientele</h3>
+                                <p className="text-gray-400 text-sm leading-relaxed">
+                                    Access a steady stream of verified clients seeking your specific expertise. No more marketing overhead.
                                 </p>
                             </div>
                         </div>
 
-                        {/* Email */}
+                        {/* Benefit 2 */}
+                        <div className="flex items-start gap-5">
+                            <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-gold shrink-0 mt-1">
+                                <TrendingUp size={24} />
+                            </div>
+                            <div>
+                                <h3 className="font-serif text-xl text-white mb-2">Digital Presence</h3>
+                                <p className="text-gray-400 text-sm leading-relaxed">
+                                    Get a premium profile on our platform, enhancing your professional visibility and reputation.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Benefit 3 */}
                         <div className="flex items-start gap-5">
                             <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-gold shrink-0 mt-1">
                                 <ShieldCheck size={24} />
                             </div>
                             <div>
-                                <h3 className="font-bold text-xl text-white mb-1">Email Address</h3>
-                                <p className="text-gold text-lg font-medium">support.legaro@gmail.com</p>
+                                <h3 className="font-serif text-xl text-white mb-2">Guaranteed Payments</h3>
+                                <p className="text-gray-400 text-sm leading-relaxed">
+                                    Secure and timely payments for every consultation and service rendered. Zero hassle.
+                                </p>
                             </div>
                         </div>
                     </div>

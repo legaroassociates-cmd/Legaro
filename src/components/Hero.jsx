@@ -22,25 +22,25 @@ const Hero = () => {
         - Uses 'inset-0' to cover the same area.
         - Flexbox to center or align content as needed.
       */}
-            <div className="absolute inset-0 flex items-center">
+            <div className="absolute inset-0 flex items-center justify-start pb-10">
                 <div className="container mx-auto px-4 md:px-16">
 
                     {/* Content Container - Matching previous alignment */}
                     <div className="md:w-[80%] lg:w-[70%]">
 
 
-                        <h1 className="text-4xl md:text-5xl lg:text-[4rem] font-serif mb-2 md:mb-6 leading-[1.1] tracking-wide text-white drop-shadow-lg md:whitespace-nowrap">
+                        <h1 className="text-3xl md:text-5xl lg:text-[3.5rem] font-serif mb-2 leading-[1.1] tracking-wide text-white drop-shadow-lg md:whitespace-nowrap">
                             <span className="text-[#E5C585]">Your Trusted Partners</span> For All Legal Matters
                         </h1>
-                        <h2 className="text-2xl md:text-5xl lg:text-[3rem] font-serif mb-2 md:mb-6 leading-[1.1] tracking-wide text-white drop-shadow-lg md:whitespace-nowrap">
+                        <h2 className="text-xl md:text-4xl lg:text-[2.5rem] font-serif mb-4 leading-[1.1] tracking-wide text-white drop-shadow-lg md:whitespace-nowrap">
                             Connect with Top <span className="text-[#E5C585]">Lawyers in Tamil Nadu</span>
                         </h2>
 
-                        <h3 className="text-sm md:text-2xl font-light mb-4 md:mb-8 text-white tracking-wide drop-shadow-md">
+                        <h3 className="text-sm md:text-xl font-light mb-6 text-white tracking-wide drop-shadow-md">
                             Book a 30-Minute Legal Consultation Online
                         </h3>
 
-                        <div className="hidden md:flex flex-col gap-2 md:gap-4 mb-4 md:mb-10 pl-1">
+                        <div className="hidden md:flex flex-col gap-2 md:gap-3 mb-8 pl-1">
                             <div className="flex items-start gap-3">
                                 <span className="text-[#E5C585] text-xl font-bold mt-1 drop-shadow-md">✓</span>
                                 <span className="text-lg opacity-95 font-light tracking-wide text-white drop-shadow-md">Get great legal advice from trusted, independent lawyers</span>

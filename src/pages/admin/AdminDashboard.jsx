@@ -26,7 +26,8 @@ const AdminDashboard = () => {
     const [lawyerForm, setLawyerForm] = useState({ name: '', title: '', experience: '', bio: '', specialization: '', image: '', priority: 0 });
 
     // Filter States
-    const [bookingFilter, setBookingFilter] = useState('all'); // all, upcoming, completed, missed
+    const [bookingFilter, setBookingFilter] = useState('all'); // all, new, assigned, unassigned
+    const [dateFilter, setDateFilter] = useState('');
     const [partnerFilter, setPartnerFilter] = useState('all'); // all, new, onboarding, rejected
     const [searchQuery, setSearchQuery] = useState('');
     const [lawyerSort, setLawyerSort] = useState('priority'); // priority, experience, name
@@ -37,13 +38,6 @@ const AdminDashboard = () => {
     const [assignmentData, setAssignmentData] = useState({ lawyerId: '', slot: '' });
 
     const navigate = useNavigate();
-
-    useEffect(() => {
-        setSearchQuery('');
-        setBookingFilter('all');
-        setPartnerFilter('all');
-        // We don't reset lawyerSort as it's a preference
-    }, [activeTab]);
 
     useEffect(() => {
         // Clock
@@ -70,6 +64,16 @@ const AdminDashboard = () => {
             unsubLawyers();
         };
     }, []);
+
+    const handleTabClick = (tabId) => {
+        setActiveTab(tabId);
+        setSearchQuery('');
+        setBookingFilter('all');
+        setDateFilter('');
+        setPartnerFilter('all');
+    };
+
+
 
     const handleLogout = () => {
         if (window.confirm("Are you sure you want to logout?")) {
@@ -135,12 +139,25 @@ const AdminDashboard = () => {
     const getFilteredBookings = () => {
         let filtered = bookings;
 
-        // 1. Status Filter
-        if (bookingFilter !== 'all') {
-            filtered = filtered.filter(b => b.status === bookingFilter);
+        // 1. Date Filter
+        if (dateFilter) {
+            const filterDate = new Date(dateFilter).toDateString();
+            filtered = filtered.filter(b => b.date?.toDate && b.date.toDate().toDateString() === filterDate);
         }
 
-        // 2. Search Filter
+        // 2. Status Filter
+        if (bookingFilter !== 'all') {
+            if (bookingFilter === 'assigned') {
+                filtered = filtered.filter(b => b.lawyerId);
+            } else if (bookingFilter === 'unassigned') {
+                filtered = filtered.filter(b => !b.lawyerId);
+            } else if (bookingFilter === 'new') {
+                const today = new Date().toDateString();
+                filtered = filtered.filter(b => !b.lawyerId && b.createdAt?.toDate && b.createdAt.toDate().toDateString() === today);
+            }
+        }
+
+        // 3. Search Filter
         if (searchQuery.trim()) {
             const query = searchQuery.toLowerCase();
             filtered = filtered.filter(b =>
@@ -210,11 +227,29 @@ const AdminDashboard = () => {
         if (e) e.stopPropagation();
         setAssignmentData({
             bookingId: booking.id,
-            slot: '',
+            slot: booking.slot || '',
             lawyerId: booking.lawyerId || '',
-            session: booking.timeSlot // Morning, Afternoon, or Evening
+            session: booking.timeSlot,
+            isReschedule: !!booking.lawyerId
         });
         setIsAssignmentModalOpen(true);
+    };
+
+    const sendNotification = async (type, data) => {
+        try {
+            await fetch('/send-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    to: data.email,
+                    subject: data.subject,
+                    templateType: type,
+                    data: data
+                })
+            });
+        } catch (error) {
+            console.error("Notification Error:", error);
+        }
     };
 
     const handleAssignLawyer = async () => {
@@ -226,13 +261,123 @@ const AdminDashboard = () => {
                 status: 'assigned',
                 assignedAt: serverTimestamp()
             });
+
+            const booking = bookings.find(b => b.id === assignmentData.bookingId);
+            let lawyerName = 'Legaro Admin Lawyer';
+            if (assignmentData.lawyerId !== 'admin_lawyer') {
+                const l = lawyers.find(l => l.id === assignmentData.lawyerId);
+                if (l) lawyerName = l.name;
+            }
+
+            if (booking) {
+                if (assignmentData.isReschedule) {
+                    // Reschedule Notification
+                    await sendNotification('booking_rescheduled', {
+                        email: booking.email,
+                        subject: 'Consultation Rescheduled - Legaro Associates',
+                        name: booking.name,
+                        date: booking.date?.toDate ? booking.date.toDate().toLocaleDateString() : new Date().toLocaleDateString(),
+                        slot: assignmentData.slot,
+                        lawyerName: lawyerName
+                    });
+
+                    if (booking.phone) {
+                        const message = `Hello ${booking.name}, your consultation has been RESCHEDULED to ${assignmentData.slot} with ${lawyerName}. Please be ready. - Legaro Associates`;
+                        window.open(`https://wa.me/${booking.phone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank');
+                    }
+                    alert("Booking Rescheduled & Notified!");
+                } else {
+                    // Assignment Notification
+                    await sendNotification('booking_confirmation', {
+                        email: booking.email,
+                        subject: 'Booking Confirmed - Legaro Associates',
+                        name: booking.name,
+                        category: booking.category,
+                        date: booking.date?.toDate ? booking.date.toDate().toLocaleDateString() : new Date().toLocaleDateString(),
+                        slot: assignmentData.slot,
+                        lawyerName: lawyerName
+                    });
+
+                    if (booking.phone) {
+                        const message = `Hello ${booking.name}, your consultation request for ${booking.category} has been confirmed with ${lawyerName} for ${assignmentData.slot}. Please be ready 5 mins prior. - Legaro Associates`;
+                        window.open(`https://wa.me/${booking.phone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank');
+                    }
+                    alert("Booking assigned & Client notified via Email & WhatsApp!");
+                }
+            }
+
             setIsAssignmentModalOpen(false);
             setAssignmentData({ lawyerId: '', slot: '' });
-            alert("Booking assigned successfully!");
         } catch (error) {
             console.error("Error assigning lawyer:", error);
             alert("Failed to assign lawyer.");
         }
+    };
+
+    // Handle Actions from Detail Modal (Schedule Interview / Hire)
+    const handleDetailAction = async (item, extra) => {
+        if (activeTab === 'bookings') {
+            openAssignmentModal(item);
+        } else if (activeTab === 'partners') {
+            if (extra === 'hire') {
+                // Hire Logic
+                if (window.confirm(`Hire ${item.name} and send onboarding link?`)) {
+                    await updateDoc(doc(db, 'partners', item.id), {
+                        status: 'onboarding_sent',
+                        onboardingSentAt: serverTimestamp()
+                    });
+
+                    // Send Email
+                    await sendNotification('onboarding_link', {
+                        email: item.email,
+                        subject: 'Welcome to Legaro - Complete your Onboarding',
+                        name: item.name,
+                        firstName: item.name.split(' ')[0],
+                        dob: item.dob || 'DOB', // Assuming DOB is part of the partner data (if not, use placeholder or prompt)
+                        link: `${window.location.origin}/partner-onboarding`
+                    });
+
+                    alert(`Onboarding link sent to ${item.email}. Passcode: ${item.dob || 'DOB'}`);
+                    setSelectedItem(null);
+                }
+            } else {
+                // Schedule Logic (extra is date string)
+                if (window.confirm(`Confirm interview on ${extra}?`)) {
+                    await updateDoc(doc(db, 'partners', item.id), {
+                        status: 'interview_scheduled',
+                        interviewDate: extra
+                    });
+
+                    // Send Email
+                    await sendNotification('interview_invite', {
+                        email: item.email,
+                        subject: 'Interview Invitation - Legaro Associates',
+                        name: item.name,
+                        interviewDate: extra
+                    });
+
+                    alert(`Interview scheduled for ${extra}. Invitation sent to ${item.email}`);
+                    setSelectedItem(null);
+                }
+            }
+        }
+    };
+
+    const handleTileClick = (tab, filter) => {
+        setActiveTab(tab);
+        setSearchQuery(''); // Reset search when navigating via tiles
+
+        if (tab === 'bookings') {
+            if (filter === 'today') {
+                setDateFilter(new Date().toISOString().split('T')[0]);
+                setBookingFilter('all');
+            } else {
+                setDateFilter('');
+                setBookingFilter(filter);
+            }
+        }
+
+        if (tab === 'partners') setPartnerFilter(filter);
     };
 
     return (
@@ -256,7 +401,7 @@ const AdminDashboard = () => {
                     ].map((item) => (
                         <button
                             key={item.id}
-                            onClick={() => setActiveTab(item.id)}
+                            onClick={() => handleTabClick(item.id)}
                             className={`flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-300 group/btn relative overflow-hidden ${activeTab === item.id
                                 ? 'bg-gold text-navy shadow-[0_0_20px_rgba(251,191,36,0.3)] font-bold'
                                 : 'text-gray-400 hover:bg-white/5 hover:text-white'
@@ -313,6 +458,7 @@ const AdminDashboard = () => {
                             lawyers={lawyers}
                             partners={partners}
                             setActiveTab={setActiveTab}
+                            onTileClick={handleTileClick}
                         />
                     )}
 
@@ -440,16 +586,23 @@ const AdminDashboard = () => {
                         activeTab === 'bookings' && (
                             <div className="space-y-6 animate-fade-in">
                                 <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                                    <div className="flex gap-2 p-1 bg-white rounded-xl shadow-sm border border-gray-100 w-fit">
-                                        {['all', 'upcoming', 'completed', 'missed'].map(status => (
-                                            <button
-                                                key={status}
-                                                onClick={() => setBookingFilter(status)}
-                                                className={`px-5 py-2 rounded-lg text-sm font-bold capitalize transition-all duration-300 ${bookingFilter === status ? 'bg-navy text-white shadow-md' : 'text-gray-400 hover:text-navy hover:bg-gray-50'}`}
-                                            >
-                                                {status}
-                                            </button>
-                                        ))}
+                                    <div className="flex flex-wrap gap-4 items-center w-full md:w-auto">
+                                        <input
+                                            type="date"
+                                            value={dateFilter}
+                                            onChange={(e) => setDateFilter(e.target.value)}
+                                            className="px-4 py-2.5 rounded-xl border border-gray-200 outline-none focus:border-gold text-sm font-bold text-navy shadow-sm bg-white"
+                                        />
+                                        <select
+                                            value={bookingFilter}
+                                            onChange={(e) => setBookingFilter(e.target.value)}
+                                            className="px-4 py-2.5 rounded-xl border border-gray-200 outline-none focus:border-gold text-sm font-bold text-navy capitalize shadow-sm bg-white cursor-pointer hover:border-gray-300 transition-colors"
+                                        >
+                                            <option value="all">All Status</option>
+                                            <option value="new">New</option>
+                                            <option value="assigned">Assigned</option>
+                                            <option value="unassigned">Unassigned</option>
+                                        </select>
                                     </div>
 
                                     {/* Search Input */}
@@ -491,15 +644,32 @@ const AdminDashboard = () => {
                                                 {item.createdAt?.toDate ? item.createdAt.toDate().toLocaleDateString() : 'N/A'}
                                             </div>
                                             <div className="col-span-2">
-                                                <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5
-                                                ${item.status === 'completed' ? 'bg-green-100 text-green-700' :
-                                                        item.status === 'missed' ? 'bg-red-100 text-red-700' :
-                                                            item.status === 'assigned' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}`}>
-                                                    <span className={`w-1.5 h-1.5 rounded-full ${item.status === 'completed' ? 'bg-green-600' : item.status === 'missed' ? 'bg-red-600' : item.status === 'assigned' ? 'bg-blue-600' : 'bg-amber-600'}`}></span>
-                                                    {item.status}
-                                                </span>
-                                                {item.lawyerName && <div className="text-[10px] text-gray-400 mt-1 font-medium">w/ {item.lawyerName}</div>}
+                                                {item.lawyerId ? (
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-green-100 text-green-700 inline-flex items-center gap-1.5">
+                                                            <CheckCircle size={12} /> Assigned
+                                                        </span>
+                                                        <button
+                                                            onClick={(e) => openAssignmentModal(item, e)}
+                                                            className="p-1.5 rounded-full bg-gray-100 text-gray-500 hover:bg-gold hover:text-navy transition-colors bg-white shadow-sm border border-gray-100"
+                                                            title="Reschedule"
+                                                        >
+                                                            <Edit2 size={12} />
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    (item.createdAt?.toDate && item.createdAt.toDate().toDateString() === new Date().toDateString()) ? (
+                                                        <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-100 text-blue-700 inline-flex items-center gap-1.5">
+                                                            <AlertCircle size={12} /> New
+                                                        </span>
+                                                    ) : (
+                                                        <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-orange-100 text-orange-700 inline-flex items-center gap-1.5">
+                                                            <Clock size={12} /> Unassigned
+                                                        </span>
+                                                    )
+                                                )}
                                             </div>
+
                                             <div className="col-span-2 flex justify-end gap-2 items-center opacity-100" onClick={e => e.stopPropagation()}>
                                                 {/* Time Slot Display */}
                                                 <div className={`text-xs font-bold px-2 py-1 rounded bg-gray-50 border border-gray-100 text-navy whitespace-nowrap ${!item.slot && !item.timeSlot ? 'text-gray-400 italic' : ''}`}>
@@ -519,7 +689,7 @@ const AdminDashboard = () => {
                             <div className="space-y-6 animate-fade-in">
                                 <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                                     <div className="flex gap-2 p-1 bg-white rounded-xl shadow-sm border border-gray-100 w-fit">
-                                        {['all', 'new', 'onboarding', 'verified', 'rejected'].map(status => (
+                                        {['all', 'new', 'onboarding', 'onboarded', 'rejected'].map(status => (
                                             <button
                                                 key={status}
                                                 onClick={() => setPartnerFilter(status)}
@@ -565,9 +735,54 @@ const AdminDashboard = () => {
                                             <div className="bg-gray-50 p-3 rounded-lg text-sm text-gray-600 mb-6 font-medium">
                                                 {item.specialization}
                                             </div>
-                                            <div className="flex gap-2" onClick={e => e.stopPropagation()}>
-                                                <button onClick={() => updateStatus('partners', item.id, 'onboarding')} className="flex-1 bg-navy text-white py-2 rounded-lg text-sm font-bold hover:bg-navy-light transition-colors">Onboard</button>
-                                                <button onClick={() => updateStatus('partners', item.id, 'rejected')} className="px-3 py-2 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-colors"><X size={18} /></button>
+                                            <div className="flex gap-2 mt-4 pt-4 border-t border-gray-50" onClick={e => e.stopPropagation()}>
+                                                {item.status === 'new' && (
+                                                    <>
+                                                        <button
+                                                            onClick={() => updateStatus('partners', item.id, 'onboarding')}
+                                                            className="flex-1 bg-navy text-white py-2 rounded-lg text-sm font-bold hover:bg-navy-light transition-colors flex items-center justify-center gap-2"
+                                                        >
+                                                            <CheckCircle size={16} /> Accept
+                                                        </button>
+                                                        <button
+                                                            onClick={() => updateStatus('partners', item.id, 'rejected')}
+                                                            className="px-3 py-2 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-colors"
+                                                            title="Reject"
+                                                        >
+                                                            <X size={18} />
+                                                        </button>
+                                                    </>
+                                                )}
+
+                                                {item.status === 'onboarding' && (
+                                                    <>
+                                                        <button
+                                                            onClick={() => updateStatus('partners', item.id, 'onboarded')}
+                                                            className="flex-1 bg-green-600 text-white py-2 rounded-lg text-sm font-bold hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+                                                        >
+                                                            <Briefcase size={16} /> Onboard
+                                                        </button>
+                                                        <button
+                                                            onClick={() => updateStatus('partners', item.id, 'rejected')}
+                                                            className="px-3 py-2 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-colors"
+                                                            title="Reject"
+                                                        >
+                                                            <X size={18} />
+                                                        </button>
+                                                    </>
+                                                )}
+
+                                                {item.status === 'onboarded' && (
+                                                    <div className="w-full text-center text-green-600 font-bold text-sm bg-green-50 py-2 rounded-lg flex items-center justify-center gap-2">
+                                                        <CheckCircle size={16} /> Onboarded
+                                                    </div>
+                                                )}
+
+                                                {item.status === 'rejected' && (
+                                                    <div className="w-full text-center text-red-500 font-bold text-sm bg-red-50 py-2 rounded-lg flex items-center justify-center gap-2">
+                                                        <X size={16} /> Rejected
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     ))}
@@ -755,7 +970,7 @@ const AdminDashboard = () => {
                 selectedItem={selectedItem}
                 onClose={() => setSelectedItem(null)}
                 activeTab={activeTab}
-                onAccept={openAssignmentModal}
+                onAccept={handleDetailAction}
             />
 
             {/* --- ASSIGNMENT MODAL --- */}
@@ -767,7 +982,7 @@ const AdminDashboard = () => {
                 lawyers={lawyers}
                 onAssign={handleAssignLawyer}
             />
-        </div>
+        </div >
     );
 };
 

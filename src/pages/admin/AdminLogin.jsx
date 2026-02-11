@@ -29,6 +29,14 @@ const AdminLogin = () => {
         setError('');
 
         try {
+            // Hardcoded Admin Access (Requested)
+            if (adminId === 'admin' && password === 'admin') {
+                sessionStorage.setItem('legaro_admin_session', 'true');
+                localStorage.removeItem('legaro_admin_session');
+                navigate('/admin/dashboard');
+                return;
+            }
+
             const hashedPassword = await hashPassword(password);
 
             // Query DB for this Admin ID

@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { Calendar, Users, Briefcase, CheckCircle, AlertCircle, Clock, TrendingUp } from 'lucide-react';
 
-const DashboardOverview = ({ bookings, lawyers, partners, setActiveTab }) => {
+const DashboardOverview = ({ bookings, lawyers, partners, setActiveTab, onTileClick }) => {
     const [selectedSlot, setSelectedSlot] = useState(null); // { dateStr, session, bookings }
     return (
         <div className="space-y-8 animate-fade-in">
             {/* 1. KPI TILES - REALTIME METRICS */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
                 {/* Today's Consultations */}
-                <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 group hover:shadow-lg transition-all relative overflow-hidden">
+                <div
+                    onClick={() => onTileClick('bookings', 'today')}
+                    className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 group hover:shadow-lg transition-all relative overflow-hidden cursor-pointer"
+                >
                     <div className="flex justify-between items-start mb-3">
                         <div className="w-10 h-10 rounded-xl bg-navy/5 text-navy flex items-center justify-center group-hover:bg-navy group-hover:text-gold transition-colors">
                             <Calendar size={20} />
@@ -28,7 +31,10 @@ const DashboardOverview = ({ bookings, lawyers, partners, setActiveTab }) => {
                 </div>
 
                 {/* Legal Experts */}
-                <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 group hover:shadow-lg transition-all relative overflow-hidden">
+                <div
+                    onClick={() => onTileClick('lawyers', 'all')}
+                    className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 group hover:shadow-lg transition-all relative overflow-hidden cursor-pointer"
+                >
                     <div className="flex justify-between items-start mb-3">
                         <div className="w-10 h-10 rounded-xl bg-gold/10 text-gold-dark flex items-center justify-center group-hover:bg-gold group-hover:text-white transition-colors">
                             <Users size={20} />
@@ -39,7 +45,10 @@ const DashboardOverview = ({ bookings, lawyers, partners, setActiveTab }) => {
                 </div>
 
                 {/* Partnership Applications */}
-                <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 group hover:shadow-lg transition-all relative overflow-hidden">
+                <div
+                    onClick={() => onTileClick('partners', 'all')}
+                    className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 group hover:shadow-lg transition-all relative overflow-hidden cursor-pointer"
+                >
                     <div className="flex justify-between items-start mb-3">
                         <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-colors">
                             <Briefcase size={20} />
@@ -50,7 +59,10 @@ const DashboardOverview = ({ bookings, lawyers, partners, setActiveTab }) => {
                 </div>
 
                 {/* Onboarding Partners */}
-                <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 group hover:shadow-lg transition-all relative overflow-hidden">
+                <div
+                    onClick={() => onTileClick('partners', 'onboarding')}
+                    className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 group hover:shadow-lg transition-all relative overflow-hidden cursor-pointer"
+                >
                     <div className="flex justify-between items-start mb-3">
                         <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors">
                             <Clock size={20} />
@@ -63,7 +75,10 @@ const DashboardOverview = ({ bookings, lawyers, partners, setActiveTab }) => {
                 </div>
 
                 {/* Assigned Bookings */}
-                <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 group hover:shadow-lg transition-all relative overflow-hidden">
+                <div
+                    onClick={() => onTileClick('bookings', 'assigned')}
+                    className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 group hover:shadow-lg transition-all relative overflow-hidden cursor-pointer"
+                >
                     <div className="flex justify-between items-start mb-3">
                         <div className="w-10 h-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center group-hover:bg-green-600 group-hover:text-white transition-colors">
                             <CheckCircle size={20} />
@@ -76,7 +91,10 @@ const DashboardOverview = ({ bookings, lawyers, partners, setActiveTab }) => {
                 </div>
 
                 {/* Unassigned Bookings */}
-                <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 group hover:shadow-lg transition-all relative overflow-hidden border-l-4 border-l-orange-400">
+                <div
+                    onClick={() => onTileClick('bookings', 'unassigned')}
+                    className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 group hover:shadow-lg transition-all relative overflow-hidden border-l-4 border-l-orange-400 cursor-pointer"
+                >
                     <div className="flex justify-between items-start mb-3">
                         <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center group-hover:bg-orange-600 group-hover:text-white transition-colors">
                             <AlertCircle size={20} />
